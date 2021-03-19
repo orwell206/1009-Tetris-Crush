@@ -1,1 +1,4 @@
+.DS_Store
 .vs/
+SDL2/lib_mac
+SDL2/include_mac
