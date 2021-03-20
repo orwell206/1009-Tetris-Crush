@@ -6,11 +6,10 @@
 #define SDL_MAIN_HANDLED
 #include <SDL2/SDL.h>
 #include <cassert>
-#include "player.cpp"
-#include "colours.hpp"
-#include "gameboard.cpp"
-#include "input_state.cpp"
-
+#include "Player_Engine/player.cpp"
+#include "Player_Engine/input_state.cpp"
+#include "Game_Engine/colours.hpp"
+#include "Game_Engine/gameboard.cpp"
 
 int main(){
 	if (SDL_Init(SDL_INIT_VIDEO) < 0){
@@ -48,7 +47,7 @@ int main(){
 		InputState prev_input = input;
 
 
-		// P1 Controls 
+		// P1 Controls
 		input.a = key_states[SDL_SCANCODE_A];
 		input.d = key_states[SDL_SCANCODE_D];
 		input.w = key_states[SDL_SCANCODE_W];

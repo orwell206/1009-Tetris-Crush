@@ -1,10 +1,10 @@
-#include "common_data.hpp"
+#include "../common_data.hpp"
 #include "tetromino_piece_state.cpp"
 #include "tetromino.cpp"
-#include "input_state.cpp"
+#include "../Player_Engine/input_state.cpp"
 
 #define WIDTH 10
-#define HEIGHT 19 
+#define HEIGHT 19
 #define PLAYABLE_HEIGHT 16
 #define GRID_SIZE 30
 
@@ -19,9 +19,9 @@ enum Game_Phase{
 
 class GameBoard {
 public:
-	u8 gameboard[WIDTH * HEIGHT]; 
+	u8 gameboard[WIDTH * HEIGHT];
 	u8 lines[HEIGHT];
-	s32 pending_line_count; 
+	s32 pending_line_count;
 
 	TetrominoPieceState tetrominoPiece;
 
@@ -29,7 +29,7 @@ public:
 	Game_Phase gamePhase;
 	f32 nextDropTime;
 	f32 highlighted_end_time;
-	f32 time; 
+	f32 time;
 	s32 level;
 	s32 cleared_lines;
 	s32 line_count;
@@ -105,7 +105,7 @@ public:
 		switch(rotation){
 			case 0:
 				return tetromino->matrix[row * side + col];
-			case 1: 
+			case 1:
 				return tetromino->matrix[(side - col - 1) * side + row];
 			case 2:
 				return tetromino->matrix[(side - row - 1) * side + (side - col - 1)];
@@ -133,7 +133,7 @@ public:
 			lines_out[row] = filled;
 			count += filled;
 		}
-		return count; 
+		return count;
 	}
 
 
@@ -199,23 +199,23 @@ public:
 			for (s32 col = 0; col < tetromino->side; col++){
 				u8 value = get_tetromino(tetromino, row, col, tetromino_piece->rotation);
 				if (value > 0){
-					 s32 board_row = tetromino_piece->offset_row + row;
-					 s32 board_col = tetromino_piece->offset_col + col;
-					 if (board_row < 0){
-					 	return false;
-					 }
-					 if (board_row >= height){
-					 	return false;
-					 }
-					 if (board_col < 0){
-					 	return false;
-					 }
-					 if (board_col >= width){
-					 	return false;
-					 }
-					 if (get_matrix(gameboard, width, board_row, board_col)){
-					 	return false;
-					 }
+					s32 board_row = tetromino_piece->offset_row + row;
+					s32 board_col = tetromino_piece->offset_col + col;
+					if (board_row < 0){
+						return false;
+					}
+					if (board_row >= height){
+						return false;
+					}
+					if (board_col < 0){
+						return false;
+					}
+					if (board_col >= width){
+						return false;
+					}
+					if (get_matrix(gameboard, width, board_row, board_col)){
+						return false;
+					}
 				}
 			}
 		}
@@ -253,7 +253,7 @@ public:
 			return false;
 		}
 		gameboard->nextDropTime = gameboard->time + get_time_to_next_tetromino_drop(gameboard->level);
-		return true;			
+		return true;
 	}
 
 
@@ -270,7 +270,7 @@ public:
 		if (gameboard->time >= gameboard->highlighted_end_time){
 			clear_lines(gameboard->gameboard, WIDTH, HEIGHT, gameboard->lines);
 			gameboard->line_count += gameboard->pending_line_count;
-			gameboard->gamePhase = GAME_PHASE_PLAY; 
+			gameboard->gamePhase = GAME_PHASE_PLAY;
 		}
 	}
 
@@ -285,12 +285,12 @@ public:
 			++tetrominoPiece.offset_col;
 		}
 		if (input->dw > 1){
-			tetrominoPiece.rotation = (tetrominoPiece.rotation + 1) % 4; 
+			tetrominoPiece.rotation = (tetrominoPiece.rotation + 1) % 4;
 		}
 
 		if (check_tetromino_valid(&tetrominoPiece, gameboard->gameboard, WIDTH, HEIGHT)){
 			gameboard->tetrominoPiece = tetrominoPiece;
-		}		
+		}
 
 		if (input->ds > 1){
 			drop_tetromino(gameboard, player);
