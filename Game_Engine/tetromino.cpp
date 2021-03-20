@@ -1,12 +1,10 @@
 #include <initializer_list>
 #pragma once
 
-
-
 class Tetromino {
-public:
-	u8 *matrix;
-	s32 side;
+	public:
+		u8 *matrix;
+		s32 side;
 
 	Tetromino(u8 *matrix, s32 side){
 		this->matrix = matrix;
@@ -14,60 +12,20 @@ public:
 	}
 };
 
-
-u8 TETROMINO_1[] = {
-	0, 0, 0, 0,
-	1, 1, 1, 1, 
-	0, 0, 0, 0, 
-	0, 0, 0, 0
-};
-
-u8 TETROMINO_2[] = {
-	2, 2,
-	2, 2
-};
-
-u8 TETROMINO_3[] = {
-	0, 0, 0,
-	3, 3, 3,
-	0, 3, 0
-};
-
-
-u8 TETROMINO_4[] = {
-	0, 4, 4,
-	4, 4, 0,
-	0, 0, 0
-};
-
-
-u8 TETROMINO_5[] = {
-	5, 5, 0,
-	0, 5, 5,
-	0, 0, 0
-};
-
-
-u8 TETROMINO_6[] = {
-	6, 0, 0,
-	6, 6, 6,
-	0, 0, 0
-};
-
-
-u8 TETROMINO_7[] = {
-	0, 0, 7,
-	7, 7, 7,
-	0, 0, 0
-};
-
+u8 TETROMINO_I_SHAPE[] = { 0, 0, 0, 0, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0 };
+u8 TETROMINO_T_SHAPE[] = { 0, 0, 0, 3, 3, 3, 0, 3, 0 };
+u8 TETROMINO_L_SHAPE[] = { 0, 0, 7, 7, 7, 7, 0, 0, 0 };
+u8 TETROMINO_J_SHAPE[] = { 6, 0, 0, 6, 6, 6, 0, 0, 0 };
+u8 TETROMINO_S_SHAPE[] = { 0, 4, 4, 4, 4, 0, 0, 0, 0 };
+u8 TETROMINO_Z_SHAPE[] = { 5, 5, 0, 0, 5, 5, 0, 0, 0 };
+u8 TETROMINO_SQ_SHAPE[] = { 2, 2, 2, 2 };
 
 Tetromino TETROMINOS[] = {
-	Tetromino(TETROMINO_1, 4),
-	Tetromino(TETROMINO_2, 2),
-	Tetromino(TETROMINO_3, 3),
-	Tetromino(TETROMINO_4, 3),
-	Tetromino(TETROMINO_5, 3),
-	Tetromino(TETROMINO_6, 3),
-	Tetromino(TETROMINO_7, 3),
+	Tetromino(TETROMINO_I_SHAPE, 4),
+	Tetromino(TETROMINO_T_SHAPE, 3),
+	Tetromino(TETROMINO_L_SHAPE, 3),
+	Tetromino(TETROMINO_J_SHAPE, 3),
+	Tetromino(TETROMINO_S_SHAPE, 3),
+	Tetromino(TETROMINO_Z_SHAPE, 3),
+	Tetromino(TETROMINO_SQ_SHAPE, 2)
 };
