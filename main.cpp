@@ -1,4 +1,3 @@
-// gcc -std=c++17 main.cpp -I "C:\Users\tux\Documents\SIT\ICT1009\Projects\C++ Project\SDL2\include" -L "C:\Users\tux\Documents\SIT\ICT1009\Projects\C++ Project\SDL2\lib" -Wall -lmingw32 -lSDL2main -lSDL2 -o main
 #include <cstdlib>
 #include <cstdint>
 #include <cstdio>

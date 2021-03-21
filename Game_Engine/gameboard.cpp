@@ -7,13 +7,16 @@
 #define HEIGHT 19
 #define PLAYABLE_HEIGHT 16
 #define GRID_SIZE 30
+#define FINAL_ROW 0 
 
 const u8 FRAMES_PER_DROP[] = {48, 43, 38, 33, 28, 23, 18, 13, 8, 6, 5, 5, 5, 4, 4, 4, 3, 3, 3, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 1};
 const f32 TARGET_SECONDS_PER_FRAME = 1.f / 60.f;
 
+
 enum Game_Phase{
 	GAME_PHASE_PLAY,
-	GAME_PHASE_LINE
+	GAME_PHASE_LINE,
+	GAME_PHASE_GAMEOVER,
 };
 
 
@@ -73,7 +76,7 @@ public:
 
 
 	void draw_tetromino(SDL_Renderer *renderer, const TetrominoPieceState *tetrominoPiece, s32 offset_x, s32 offset_y){
-		const Tetromino *tempTetromino = TETROMINOS + tetrominoPiece->tetromino_index;
+		const Tetromino *tempTetromino = TETROMINOS.tetromino_list + tetrominoPiece->tetromino_index;
 		for (s32 row = 0; row < tempTetromino->side; row++){
 			for (s32 col = 0; col < tempTetromino->side; col++){
 				u8 value = get_tetromino(tempTetromino, row, col, tetrominoPiece->rotation);
@@ -126,6 +129,21 @@ public:
 	}
 
 
+	inline u8 check_if_row_empty(const u8 *values, s32 width, s32 row){
+		for (s32 col = 0; col < width; col++){
+			if (get_matrix(values, width, row, col)){
+				return 0;
+			}
+		}
+		return 1;
+	}
+
+
+
+
+
+
+
 	s32 find_lines(const u8 *values, s32 width, s32 height, u8 *lines_out){
 		s32 count = 0;
 		for (s32 row = 0; row < height; row++){
@@ -176,6 +194,9 @@ public:
 			case GAME_PHASE_LINE:
 				update_gameline(gameboard);
 				break;
+				
+			case GAME_PHASE_GAMEOVER:
+				exit(1);
 		}
 	}
 
@@ -192,7 +213,7 @@ public:
 
 
 	bool check_tetromino_valid(const TetrominoPieceState *tetromino_piece, const u8 *gameboard, s32 width, s32 height){
-		const Tetromino *tetromino = TETROMINOS + tetromino_piece->tetromino_index;
+		const Tetromino *tetromino = TETROMINOS.tetromino_list + tetromino_piece->tetromino_index;
 		assert(tetromino);
 
 		for (s32 row = 0; row < tetromino->side; row++){
@@ -225,12 +246,19 @@ public:
 
 	void spawn_tetromino(GameBoard *gameboard){
 		gameboard->tetrominoPiece = {};
+		gameboard->tetrominoPiece.tetromino_index = (u8)random_tetromino_index(0, TETROMINOS.tetromino_shape_count);
 		gameboard->tetrominoPiece.offset_col = WIDTH / 2;
 	}
 
 
+	int random_tetromino_index(s32 min, s32 max){
+		s32 range = max - min;
+		return min + rand() % range; 
+
+	}
+
 	void merge_tetrimino_on_board(GameBoard *gameboard, Player *player){
-		const Tetromino *tetromino = TETROMINOS + gameboard->tetrominoPiece.tetromino_index;
+		const Tetromino *tetromino = TETROMINOS.tetromino_list + gameboard->tetrominoPiece.tetromino_index;
 		for (s32 row = 0; row < tetromino->side; row++){
 			for (s32 col = 0; col < tetromino->side; col++){
 				u8 value = get_tetromino(tetromino, row, col, gameboard->tetrominoPiece.rotation);
@@ -309,6 +337,10 @@ public:
 		if (line_count > 0){
 			gameboard->gamePhase = GAME_PHASE_LINE;
 			gameboard->highlighted_end_time = gameboard->time + 0.5f;
+		}
+
+		if (!check_if_row_empty(gameboard->gameboard, WIDTH, FINAL_ROW)){
+			gameboard->gamePhase = GAME_PHASE_GAMEOVER;
 		}
 	}
 };
