@@ -4,6 +4,7 @@
 #include <cstring>
 #define SDL_MAIN_HANDLED
 #include <SDL2/SDL.h>
+#include <SDL2/SDL_ttf.h>
 #include <cassert>
 #include "Player_Engine/player.cpp"
 #include "Player_Engine/input_state.cpp"
@@ -14,6 +15,10 @@ int main(){
 	if (SDL_Init(SDL_INIT_VIDEO) < 0){
 		return -1;
 	}
+	if (TTF_Init() < 0)
+    {
+        return 2;
+    }
 
 	SDL_Window *window = SDL_CreateWindow("Tetris Crush Team 42", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, 780, 570, SDL_WINDOW_OPENGL | SDL_WINDOW_SHOWN);
 	SDL_Renderer *renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC);
@@ -29,9 +34,11 @@ int main(){
 	gameboard.spawn_tetromino(&gameboard);
 
 	bool quit = false;
+	const char *font_name = "novem___.ttf";
+	TTF_Font *font = TTF_OpenFont(font_name, 24);
 	while (!quit){
 		gameboard.time = SDL_GetTicks() / 1000.0f;
-
+		
 
 		SDL_Event e;
 		while (SDL_PollEvent(&e) != 0){
@@ -64,12 +71,13 @@ int main(){
 		SDL_RenderClear(renderer);
 
 		gameboard.update_game(&gameboard, &input);
-		gameboard.render_game(&gameboard, renderer);
+		gameboard.render_game(&gameboard, renderer,font);
 
 		SDL_RenderPresent(renderer);
 	}
-
+	TTF_CloseFont(font);
 	SDL_DestroyRenderer(renderer);
+	
 	SDL_Quit();
 	return 0;
 }

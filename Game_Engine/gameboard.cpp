@@ -2,7 +2,7 @@
 #include "tetromino_piece_state.cpp"
 #include "tetromino.cpp"
 #include "../Player_Engine/input_state.cpp"
-
+#include <SDL2/SDL_ttf.h>
 #define WIDTH 10
 #define HEIGHT 19
 #define PLAYABLE_HEIGHT 16
@@ -18,7 +18,11 @@ enum Game_Phase{
 	GAME_PHASE_LINE,
 	GAME_PHASE_GAMEOVER,
 };
-
+enum Text_Align{
+		TEXT_ALIGN_LEFT,
+		TEXT_ALIGN_CENTER,
+		TEXT_ALIGN_RIGHT
+};
 
 class GameBoard {
 public:
@@ -42,7 +46,37 @@ public:
 		this->player = &player;
 	}
 
+	void draw_text(SDL_Renderer *renderer,
+            TTF_Font *font,
+            const char *text,
+            s32 x, s32 y,
+            Text_Align alignment,
+            Color color){
+    SDL_Color sdl_color = SDL_Color { color.r, color.g, color.b, color.a };
+    SDL_Surface *surface = TTF_RenderText_Solid(font, text, sdl_color);
+    SDL_Texture *texture = SDL_CreateTextureFromSurface(renderer, surface);
 
+    SDL_Rect rect;
+    rect.y = y;
+    rect.w = surface->w;
+    rect.h = surface->h;
+    switch (alignment)
+    {
+    case TEXT_ALIGN_LEFT:
+        rect.x = x;
+        break;
+    case TEXT_ALIGN_CENTER:
+        rect.x = x - surface->w / 2;
+        break;
+    case TEXT_ALIGN_RIGHT:
+        rect.x = x - surface->w;
+        break;
+    }
+
+    SDL_RenderCopy(renderer, texture, 0, &rect);
+    SDL_FreeSurface(surface);
+    SDL_DestroyTexture(texture);
+}
 	void render_clearline_graphics(const GameBoard *gameboard, SDL_Renderer *renderer){
 		Color highlight_color = color(0xFF, 0xFF, 0xFF, 0xFF);
 		if (gameboard->gamePhase == GAME_PHASE_LINE){
@@ -58,10 +92,15 @@ public:
 	}
 
 
-	void render_game(const GameBoard *gameboard, SDL_Renderer *renderer){
+	void render_game(const GameBoard *gameboard, SDL_Renderer *renderer,TTF_Font *font){
 		draw_on_board(renderer, gameboard->gameboard, WIDTH, HEIGHT, 0, 0);
 		draw_tetromino(renderer, &gameboard->tetrominoPiece, 0, 0);
 		render_clearline_graphics(gameboard, renderer);
+		s32 x = WIDTH * GRID_SIZE / 2;
+		s32 margin_y = 60;
+		s32 y = (HEIGHT * GRID_SIZE + margin_y) / 2;
+		Color highlight_color = color(0xFF, 0xFF, 0xFF, 0xFF);
+		draw_text(renderer, font, "GAME OVER", x, y, TEXT_ALIGN_CENTER, highlight_color);
 	}
 
 
