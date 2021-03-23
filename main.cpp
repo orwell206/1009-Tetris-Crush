@@ -15,6 +15,7 @@ int main(){
 	if (SDL_Init(SDL_INIT_VIDEO) < 0){
 		return -1;
 	}
+	//For TTF font
 	if (TTF_Init() < 0)
     {
         return 2;
@@ -34,6 +35,7 @@ int main(){
 	gameboard.spawn_tetromino(&gameboard);
 
 	bool quit = false;
+	//Open font
 	const char *font_name = "novem___.ttf";
 	TTF_Font *font = TTF_OpenFont(font_name, 24);
 	while (!quit){
@@ -75,6 +77,7 @@ int main(){
 
 		SDL_RenderPresent(renderer);
 	}
+	//Close font after game close
 	TTF_CloseFont(font);
 	SDL_DestroyRenderer(renderer);
 	

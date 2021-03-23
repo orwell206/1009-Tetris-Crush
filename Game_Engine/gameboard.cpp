@@ -3,6 +3,7 @@
 #include "tetromino.cpp"
 #include "../Player_Engine/input_state.cpp"
 #include <SDL2/SDL_ttf.h>
+#include <iostream>
 #define WIDTH 10
 #define HEIGHT 19
 #define PLAYABLE_HEIGHT 16
@@ -40,6 +41,7 @@ public:
 	s32 level;
 	s32 cleared_lines;
 	s32 line_count;
+	s32 points;
 
 
 	void set_player(Player &player){
@@ -96,11 +98,19 @@ public:
 		draw_on_board(renderer, gameboard->gameboard, WIDTH, HEIGHT, 0, 0);
 		draw_tetromino(renderer, &gameboard->tetrominoPiece, 0, 0);
 		render_clearline_graphics(gameboard, renderer);
-		s32 x = WIDTH * GRID_SIZE / 2;
-		s32 margin_y = 60;
-		s32 y = (HEIGHT * GRID_SIZE + margin_y) / 2;
+
+
+		//temp for rendering score text on GUI
+		char buffer[4096];
+		s32 x = WIDTH * GRID_SIZE * 1.5;
+		//s32 margin_y = 60;
+		s32 y = HEIGHT;
 		Color highlight_color = color(0xFF, 0xFF, 0xFF, 0xFF);
-		draw_text(renderer, font, "GAME OVER", x, y, TEXT_ALIGN_CENTER, highlight_color);
+		//const char* playerScore =  *player->score
+		//draw_text(renderer, font, "test", x, y, TEXT_ALIGN_CENTER, highlight_color);
+		//gameboard->points = 0;
+		snprintf(buffer, sizeof(buffer), "POINTS: %d", gameboard->points);
+   		draw_text(renderer, font, buffer, x, y, TEXT_ALIGN_LEFT, highlight_color);
 	}
 
 
@@ -337,7 +347,12 @@ public:
 		if (gameboard->time >= gameboard->highlighted_end_time){
 			clear_lines(gameboard->gameboard, WIDTH, HEIGHT, gameboard->lines);
 			gameboard->line_count += gameboard->pending_line_count;
+			//For debugging
+			std::cout << gameboard->pending_line_count;
+			//Temp adding of score
+			gameboard->points += 20 * gameboard->pending_line_count;
 			gameboard->gamePhase = GAME_PHASE_PLAY;
+			
 		}
 	}
 
@@ -373,6 +388,8 @@ public:
 		}
 
 		s32 line_count = find_lines(gameboard->gameboard, WIDTH, HEIGHT, gameboard->lines);
+		//temp for adding pending line count 
+		gameboard->pending_line_count = find_lines(gameboard->gameboard, WIDTH, HEIGHT, gameboard->lines);
 		if (line_count > 0){
 			gameboard->gamePhase = GAME_PHASE_LINE;
 			gameboard->highlighted_end_time = gameboard->time + 0.5f;
