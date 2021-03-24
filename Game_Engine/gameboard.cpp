@@ -8,7 +8,6 @@
 #define HEIGHT 19
 #define PLAYABLE_HEIGHT 16
 #define GRID_SIZE 30
-#define FINAL_ROW 0 
 
 const u8 FRAMES_PER_DROP[] = {48, 43, 38, 33, 28, 23, 18, 13, 8, 6, 5, 5, 5, 4, 4, 4, 3, 3, 3, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 1};
 const f32 TARGET_SECONDS_PER_FRAME = 1.f / 60.f;
@@ -96,7 +95,12 @@ public:
 
 	void render_game(const GameBoard *gameboard, SDL_Renderer *renderer,TTF_Font *font){
 		draw_on_board(renderer, gameboard->gameboard, WIDTH, HEIGHT, 0, 0);
-		draw_tetromino(renderer, &gameboard->tetrominoPiece, 0, 0);
+	
+
+		if (gameboard->gamePhase == GAME_PHASE_PLAY){
+			draw_tetromino(renderer, &gameboard->tetrominoPiece, 0, 0);
+		}
+
 		render_clearline_graphics(gameboard, renderer);
 
 
@@ -245,7 +249,7 @@ public:
 				break;
 				
 			case GAME_PHASE_GAMEOVER:
-				exit(1);
+				break;
 		}
 	}
 
@@ -297,6 +301,7 @@ public:
 		gameboard->tetrominoPiece = {};
 		gameboard->tetrominoPiece.tetromino_index = (u8)random_tetromino_index(0, TETROMINOS.tetromino_shape_count);
 		gameboard->tetrominoPiece.offset_col = WIDTH / 2;
+		gameboard->nextDropTime = gameboard->time + get_time_to_next_tetromino_drop(gameboard->level);
 	}
 
 
@@ -395,8 +400,11 @@ public:
 			gameboard->highlighted_end_time = gameboard->time + 0.5f;
 		}
 
-		if (!check_if_row_empty(gameboard->gameboard, WIDTH, FINAL_ROW)){
+		s32 game_over_row = 0;
+
+		if (!check_if_row_empty(gameboard->gameboard, WIDTH, game_over_row)){
 			gameboard->gamePhase = GAME_PHASE_GAMEOVER;
 		}
 	}
 };
+	
