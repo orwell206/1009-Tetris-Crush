@@ -6,6 +6,7 @@
 #include "../Player_Engine/player.cpp"
 #include <SDL2/SDL_ttf.h>
 #include <iostream>
+#include <string>
 #define WIDTH 10
 #define HEIGHT 19
 #define PLAYABLE_HEIGHT 16
@@ -50,6 +51,7 @@ private:
 	s32 cleared_lines;
 	s32 line_count;
 	s32 points;
+
 public:
 	f32 get_GameBoardTime();
 	void set_GameBoardTime(f32);
@@ -78,7 +80,7 @@ public:
 	inline f32 get_time_to_next_tetromino_drop(s32);
 	void update_gameline(GameBoard *);
 	void update_gameplay(GameBoard *, const InputState *);
-	int game_Over(SDL_Renderer *, TTF_Font *);
+	int game_Over(GameBoard *, SDL_Renderer *, TTF_Font *);
 };
 
 f32 GameBoard::get_GameBoardTime() { return time; }
@@ -88,11 +90,11 @@ void GameBoard::set_GameBoardTime(f32 time) { this->time = time; }
 void GameBoard::set_player(Player &player) { this->player = &player; }
 
 void GameBoard::draw_text(SDL_Renderer *renderer,
-				TTF_Font *font,
-				const char *text,
-				s32 x, s32 y,
-				Text_Align alignment,
-				Color color)
+						  TTF_Font *font,
+						  const char *text,
+						  s32 x, s32 y,
+						  Text_Align alignment,
+						  Color color)
 {
 	SDL_Color sdl_color = {color.r, color.g, color.b, color.a};
 	SDL_Surface *surface = TTF_RenderText_Solid(font, text, sdl_color);
@@ -144,7 +146,8 @@ void GameBoard::render_game(const GameBoard *gameboard, SDL_Renderer *renderer, 
 	{
 		draw_tetromino(renderer, &gameboard->tetrominoPiece, 0, 0, false);
 		TetrominoPieceState tetro_shadow = gameboard->tetrominoPiece;
-		while (check_tetromino_valid(&tetro_shadow, gameboard->gameboard, WIDTH, HEIGHT)) {
+		while (check_tetromino_valid(&tetro_shadow, gameboard->gameboard, WIDTH, HEIGHT))
+		{
 			tetro_shadow.offset_row++;
 		}
 		--tetro_shadow.offset_row;
@@ -183,7 +186,7 @@ void GameBoard::draw_tetromino(SDL_Renderer *renderer, const TetrominoPieceState
 {
 	// const Tetromino *current_tetromino = tetrominoStruct.get_TetrominoList() + tetrominoPiece->tetromino_index;
 	const Tetromino *current_tetromino = next_tetromino;
-	
+
 	for (s32 row = 0; row < current_tetromino->side; row++)
 	{
 		for (s32 col = 0; col < current_tetromino->side; col++)
@@ -210,7 +213,8 @@ void GameBoard::draw_cell(SDL_Renderer *renderer, s32 row, s32 col, u8 value, s3
 	s32 x = col * GRID_SIZE + offset_x;
 	s32 y = row * GRID_SIZE + offset_y;
 
-	if (outline) {
+	if (outline)
+	{
 		draw_rect(renderer, x, y, GRID_SIZE, GRID_SIZE, base_color);
 		return;
 	}
@@ -347,7 +351,7 @@ int GameBoard::update_game(GameBoard *gameboard, const InputState *input, SDL_Re
 		break;
 
 	case GAME_PHASE_GAMEOVER:
-		int returnValue = game_Over(renderer, font);
+		int returnValue = game_Over(gameboard, renderer, font);
 		return returnValue;
 	}
 	return 2;
@@ -404,7 +408,7 @@ void GameBoard::spawn_tetromino(GameBoard *gameboard)
 
 	next_tetromino_index = (u8)random_tetromino_index(0, tetrominoStruct.get_TetrominoShapeCount());
 	next_tetromino = tetrominoStruct.get_TetrominoList() + next_tetromino_index;
-	
+
 	std::cout << "-" << std::endl;
 	std::cout << next_tetromino_index << std::endl;
 }
@@ -526,33 +530,35 @@ void GameBoard::update_gameplay(GameBoard *gameboard, const InputState *input)
 		gameboard->gamePhase = GAME_PHASE_GAMEOVER;
 	}
 }
-int GameBoard::game_Over(SDL_Renderer *renderer, TTF_Font *font)
+int GameBoard::game_Over(GameBoard *gameboard, SDL_Renderer *renderer, TTF_Font *font)
 {
-	int flag;
+	int playerPoints = gameboard->points;
+	std::string str = "Continue or Exit?\n Highest Points: " + std::to_string(playerPoints);
+	const char *message = str.c_str();
 	const SDL_MessageBoxButtonData buttons[] = {
 		{/* .flags, .buttonid, .text */ 0, 0, "Exit"},
-		{SDL_MESSAGEBOX_BUTTON_RETURNKEY_DEFAULT, 1, "Restart NOT WORKING ATM"},
+		{SDL_MESSAGEBOX_BUTTON_RETURNKEY_DEFAULT, 1, "Restart"},
 	};
 	const SDL_MessageBoxColorScheme colorScheme = {
 		{/* .colors (.r, .g, .b) */
-			/* [SDL_MESSAGEBOX_COLOR_BACKGROUND] */
-			{255, 0, 0},
-			/* [SDL_MESSAGEBOX_COLOR_TEXT] */
-			{0, 255, 0},
-			/* [SDL_MESSAGEBOX_COLOR_BUTTON_BORDER] */
-			{255, 255, 0},
-			/* [SDL_MESSAGEBOX_COLOR_BUTTON_BACKGROUND] */
-			{0, 0, 255},
-			/* [SDL_MESSAGEBOX_COLOR_BUTTON_SELECTED] */
-			{255, 0, 255}}};
+		 /* [SDL_MESSAGEBOX_COLOR_BACKGROUND] */
+		 {255, 0, 0},
+		 /* [SDL_MESSAGEBOX_COLOR_TEXT] */
+		 {0, 255, 0},
+		 /* [SDL_MESSAGEBOX_COLOR_BUTTON_BORDER] */
+		 {255, 255, 0},
+		 /* [SDL_MESSAGEBOX_COLOR_BUTTON_BACKGROUND] */
+		 {0, 0, 255},
+		 /* [SDL_MESSAGEBOX_COLOR_BUTTON_SELECTED] */
+		 {255, 0, 255}}};
 	const SDL_MessageBoxData messageboxdata = {
-		SDL_MESSAGEBOX_INFORMATION,			  /* .flags */
-		NULL,								  /* .window */
-		"Game Over - Choose Option",		  /* .title */
-		"Continue or Exit?\n Highest Player", /* .message */
-		SDL_arraysize(buttons),				  /* .numbuttons */
-		buttons,							  /* .buttons */
-		&colorScheme						  /* .colorScheme */
+		SDL_MESSAGEBOX_INFORMATION,	 /* .flags */
+		NULL,						 /* .window */
+		"Game Over - Choose Option", /* .title */
+		message,					 /* .message */
+		SDL_arraysize(buttons),		 /* .numbuttons */
+		buttons,					 /* .buttons */
+		&colorScheme				 /* .colorScheme */
 	};
 	int buttonid;
 	if (SDL_ShowMessageBox(&messageboxdata, &buttonid) < 0)
