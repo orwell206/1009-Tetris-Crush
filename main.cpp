@@ -12,6 +12,9 @@
 
 int main()
 {
+	// Seed random
+	srand(time(NULL));
+
 	if (SDL_Init(SDL_INIT_VIDEO) < 0)
 	{
 		return -1;
