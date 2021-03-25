@@ -8,7 +8,6 @@
 #include <cassert>
 #include "Player_Engine/player.cpp"
 #include "Player_Engine/input_state.cpp"
-#include "Game_Engine/colours.hpp"
 #include "Game_Engine/gameboard.cpp"
 
 int main()
@@ -43,7 +42,7 @@ int main()
 		TTF_Font *font = TTF_OpenFont(font_name, 24);
 		while (!quit)
 		{
-			gameboard.time = SDL_GetTicks() / 1000.0f;
+			gameboard.set_GameBoardTime(SDL_GetTicks() / 1000.0f);
 
 			SDL_Event e;
 			while (SDL_PollEvent(&e) != 0)
