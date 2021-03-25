@@ -9,6 +9,7 @@
 #include "Player_Engine/player.cpp"
 #include "Player_Engine/input_state.cpp"
 #include "Game_Engine/gameboard.cpp"
+#include "time.h"
 
 int main()
 {
