@@ -37,6 +37,10 @@ private:
 	TetrominoPieceState tetrominoPiece;
 	TetrominoGenerator tetrominoStruct;
 
+	u8 next_tetromino_index = (u8)random_tetromino_index(0, tetrominoStruct.get_TetrominoShapeCount());
+	Tetromino *next_tetromino;
+	Tetromino *current_tetromino;
+
 	Player *player;
 	Game_Phase gamePhase;
 	f32 nextDropTime;
@@ -54,8 +58,10 @@ public:
 	void render_clearline_graphics(const GameBoard *, SDL_Renderer *);
 	void render_game(const GameBoard *, SDL_Renderer *, TTF_Font *);
 	void draw_on_board(SDL_Renderer *, const u8 *, s32, s32, s32, s32);
-	void draw_tetromino(SDL_Renderer *, const TetrominoPieceState *, s32, s32);
-	void draw_cell(SDL_Renderer *, s32, s32, u8, s32, s32);
+	void draw_tetromino(SDL_Renderer *, const TetrominoPieceState *, s32, s32, bool);
+	void draw_cell(SDL_Renderer *, s32, s32, u8, s32, s32, bool);
+	void fill_rect(SDL_Renderer *, s32, s32, s32, s32, Color);
+	void draw_rect(SDL_Renderer *, s32, s32, s32, s32, Color);
 	inline u8 get_tetromino(const Tetromino *, s32, s32, s32);
 	inline u8 check_if_row_filled(const u8 *, s32, s32);
 	inline u8 check_if_row_empty(const u8 *, s32, s32);
@@ -64,7 +70,6 @@ public:
 	inline u8 get_matrix(const u8 *, s32, s32, s32);
 	inline void set_matrix(u8 *, s32, s32, s32, u8);
 	int update_game(GameBoard *, const InputState *, SDL_Renderer *, TTF_Font *);
-	void fill_rect(SDL_Renderer *, s32, s32, s32, s32, Color);
 	bool check_tetromino_valid(const TetrominoPieceState *, const u8 *, s32, s32);
 	void spawn_tetromino(GameBoard *);
 	int random_tetromino_index(s32, s32);
@@ -137,7 +142,14 @@ void GameBoard::render_game(const GameBoard *gameboard, SDL_Renderer *renderer, 
 
 	if (gameboard->gamePhase == GAME_PHASE_PLAY)
 	{
-		draw_tetromino(renderer, &gameboard->tetrominoPiece, 0, 0);
+		draw_tetromino(renderer, &gameboard->tetrominoPiece, 0, 0, false);
+		TetrominoPieceState tetro_shadow = gameboard->tetrominoPiece;
+		while (check_tetromino_valid(&tetro_shadow, gameboard->gameboard, WIDTH, HEIGHT)) {
+			tetro_shadow.offset_row++;
+		}
+		--tetro_shadow.offset_row;
+
+		draw_tetromino(renderer, &tetro_shadow, 0, 0, true);
 	}
 
 	render_clearline_graphics(gameboard, renderer);
@@ -162,28 +174,33 @@ void GameBoard::draw_on_board(SDL_Renderer *renderer, const u8 *gameboard, s32 w
 		for (s32 col = 0; col < width; col++)
 		{
 			u8 value = get_matrix(gameboard, width, row, col);
-			draw_cell(renderer, row, col, value, offset_x, offset_y);
+			draw_cell(renderer, row, col, value, offset_x, offset_y, false);
 		}
 	}
 }
 
-void GameBoard::draw_tetromino(SDL_Renderer *renderer, const TetrominoPieceState *tetrominoPiece, s32 offset_x, s32 offset_y)
+void GameBoard::draw_tetromino(SDL_Renderer *renderer, const TetrominoPieceState *tetrominoPiece, s32 offset_x, s32 offset_y, bool outline = false)
 {
-	const Tetromino *tempTetromino = tetrominoStruct.get_TetrominoList() + tetrominoPiece->tetromino_index;
-	for (s32 row = 0; row < tempTetromino->side; row++)
+	// const Tetromino *current_tetromino = tetrominoStruct.get_TetrominoList() + tetrominoPiece->tetromino_index;
+	const Tetromino *current_tetromino = next_tetromino;
+	
+	for (s32 row = 0; row < current_tetromino->side; row++)
 	{
-		for (s32 col = 0; col < tempTetromino->side; col++)
+		for (s32 col = 0; col < current_tetromino->side; col++)
 		{
-			u8 value = get_tetromino(tempTetromino, row, col, tetrominoPiece->rotation);
+			u8 value = get_tetromino(current_tetromino, row, col, tetrominoPiece->rotation);
 			if (value)
 			{
-				draw_cell(renderer, row + tetrominoPiece->offset_row, col + tetrominoPiece->offset_col, value, offset_x, offset_y);
+				draw_cell(renderer, row + tetrominoPiece->offset_row, col + tetrominoPiece->offset_col, value, offset_x, offset_y, outline);
 			}
 		}
 	}
 }
 
-void GameBoard::draw_cell(SDL_Renderer *renderer, s32 row, s32 col, u8 value, s32 offset_x, s32 offset_y)
+void GameBoard::draw_cell(SDL_Renderer *renderer, s32 row, s32 col, u8 value, s32 offset_x, s32 offset_y, bool outline = false)
+/*
+* Main logic gameboard and tetromino colors
+*/
 {
 	Color base_color = BASE_COLORS[value];
 	Color light_color = LIGHT_COLORS[value];
@@ -193,9 +210,41 @@ void GameBoard::draw_cell(SDL_Renderer *renderer, s32 row, s32 col, u8 value, s3
 	s32 x = col * GRID_SIZE + offset_x;
 	s32 y = row * GRID_SIZE + offset_y;
 
-	fill_rect(renderer, x, y, GRID_SIZE, GRID_SIZE, dark_color);
+	if (outline) {
+		draw_rect(renderer, x, y, GRID_SIZE, GRID_SIZE, base_color);
+		return;
+	}
+	// fill_rect(renderer, x, y, GRID_SIZE, GRID_SIZE, dark_color); // Disabled to have "grid" effect
 	fill_rect(renderer, x + edge, y, GRID_SIZE - edge, GRID_SIZE - edge, light_color);
 	fill_rect(renderer, x + edge, y + edge, GRID_SIZE - edge * 2, GRID_SIZE - edge * 2, base_color);
+}
+
+void GameBoard::fill_rect(SDL_Renderer *renderer, s32 x, s32 y, s32 width, s32 height, Color color)
+/*
+* For main gameboard and tetromino
+*/
+{
+	SDL_Rect rect = {};
+	rect.x = x;
+	rect.y = y;
+	rect.w = width;
+	rect.h = height;
+	SDL_SetRenderDrawColor(renderer, color.r, color.g, color.b, color.a);
+	SDL_RenderFillRect(renderer, &rect);
+}
+
+void GameBoard::draw_rect(SDL_Renderer *renderer, s32 x, s32 y, s32 width, s32 height, Color color)
+/*
+* For the tetromino "shadow", draw but don't fill
+*/
+{
+	SDL_Rect rect = {};
+	rect.x = x;
+	rect.y = y;
+	rect.w = width;
+	rect.h = height;
+	SDL_SetRenderDrawColor(renderer, color.r, color.g, color.b, color.a);
+	SDL_RenderDrawRect(renderer, &rect);
 }
 
 inline u8 GameBoard::get_tetromino(const Tetromino *tetromino, s32 row, s32 col, s32 rotation)
@@ -304,20 +353,11 @@ int GameBoard::update_game(GameBoard *gameboard, const InputState *input, SDL_Re
 	return 2;
 }
 
-void GameBoard::fill_rect(SDL_Renderer *renderer, s32 x, s32 y, s32 width, s32 height, Color color)
-{
-	SDL_Rect rect = {};
-	rect.x = x;
-	rect.y = y;
-	rect.w = width;
-	rect.h = height;
-	SDL_SetRenderDrawColor(renderer, color.r, color.g, color.b, color.a);
-	SDL_RenderFillRect(renderer, &rect);
-}
-
 bool GameBoard::check_tetromino_valid(const TetrominoPieceState *tetromino_piece, const u8 *gameboard, s32 width, s32 height)
 {
-	const Tetromino *tetromino = tetrominoStruct.get_TetrominoList() + tetromino_piece->tetromino_index;
+	// const Tetromino *tetromino = tetrominoStruct.get_TetrominoList() + tetromino_piece->tetromino_index;
+	const Tetromino *tetromino = next_tetromino;
+
 	assert(tetromino);
 
 	for (s32 row = 0; row < tetromino->side; row++)
@@ -358,9 +398,15 @@ bool GameBoard::check_tetromino_valid(const TetrominoPieceState *tetromino_piece
 void GameBoard::spawn_tetromino(GameBoard *gameboard)
 {
 	gameboard->tetrominoPiece = {};
-	gameboard->tetrominoPiece.tetromino_index = (u8)random_tetromino_index(0, tetrominoStruct.get_TetrominoShapeCount());
+	gameboard->tetrominoPiece.tetromino_index = next_tetromino_index;
 	gameboard->tetrominoPiece.offset_col = WIDTH / 2;
 	gameboard->nextDropTime = gameboard->time + get_time_to_next_tetromino_drop(gameboard->level);
+
+	next_tetromino_index = (u8)random_tetromino_index(0, tetrominoStruct.get_TetrominoShapeCount());
+	next_tetromino = tetrominoStruct.get_TetrominoList() + next_tetromino_index;
+	
+	std::cout << "-" << std::endl;
+	std::cout << next_tetromino_index << std::endl;
 }
 
 int GameBoard::random_tetromino_index(s32 min, s32 max)
@@ -371,7 +417,9 @@ int GameBoard::random_tetromino_index(s32 min, s32 max)
 
 void GameBoard::merge_tetrimino_on_board(GameBoard *gameboard, Player *player)
 {
-	const Tetromino *tetromino = tetrominoStruct.get_TetrominoList() + gameboard->tetrominoPiece.tetromino_index;
+	// const Tetromino *tetromino = tetrominoStruct.get_TetrominoList() + gameboard->tetrominoPiece.tetromino_index;
+	const Tetromino *tetromino = next_tetromino;
+
 	for (s32 row = 0; row < tetromino->side; row++)
 	{
 		for (s32 col = 0; col < tetromino->side; col++)
