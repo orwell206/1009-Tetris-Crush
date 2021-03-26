@@ -124,6 +124,7 @@ void GameBoard::draw_text(SDL_Renderer *renderer,
 	SDL_FreeSurface(surface);
 	SDL_DestroyTexture(texture);
 }
+
 void GameBoard::render_clearline_graphics(const GameBoard *gameboard, SDL_Renderer *renderer)
 {
 	Color highlight_color = color(0xFF, 0xFF, 0xFF, 0xFF);
@@ -413,7 +414,7 @@ void GameBoard::spawn_tetromino(GameBoard *gameboard)
 	next_tetromino = tetrominoStruct.get_TetrominoList() + next_tetromino_index;
 
 	std::cout << "-" << std::endl;
-	std::cout << next_tetromino_index << std::endl;
+	std::cout << tetrominoStruct.get_TetrominoName((int)next_tetromino_index) << std::endl;
 }
 
 int GameBoard::random_tetromino_index(s32 min, s32 max)
@@ -533,6 +534,7 @@ void GameBoard::update_gameplay(GameBoard *gameboard, const InputState *input)
 		gameboard->gamePhase = GAME_PHASE_GAMEOVER;
 	}
 }
+
 int GameBoard::game_Over(GameBoard *gameboard, SDL_Renderer *renderer, TTF_Font *font)
 {
 
