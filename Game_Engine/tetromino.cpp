@@ -33,7 +33,17 @@ private:
 		Tetromino(TETROMINO_Z_SHAPE, 3),
 		Tetromino(TETROMINO_SQ_SHAPE, 2)
 	};
+	const char *tetromino_names[7] = {
+		"TETROMINO_I_SHAPE",
+		"TETROMINO_T_SHAPE",
+		"TETROMINO_L_SHAPE",
+		"TETROMINO_J_SHAPE",
+		"TETROMINO_S_SHAPE",
+		"TETROMINO_Z_SHAPE",
+		"TETROMINO_SQ_SHAPE"
+	};
 public:
 	int get_TetrominoShapeCount() { return tetromino_shape_count; };
 	Tetromino *get_TetrominoList() { return tetromino_list; };
+	const char *get_TetrominoName(int i) { return tetromino_names[i]; }; 
 };
