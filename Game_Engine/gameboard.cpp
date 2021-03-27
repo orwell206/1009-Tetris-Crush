@@ -7,6 +7,10 @@
 #include <SDL2/SDL_ttf.h>
 #include <iostream>
 #include <string>
+#include <cctype>
+#include <fstream>
+
+#include <list>
 #define WIDTH 10
 #define HEIGHT 19
 #define PLAYABLE_HEIGHT 16
@@ -41,7 +45,6 @@ private:
 	u8 next_tetromino_index = (u8)random_tetromino_index(0, tetrominoStruct.get_TetrominoShapeCount());
 	Tetromino *next_tetromino;
 	Tetromino *current_tetromino;
-
 	Player *player;
 	Game_Phase gamePhase;
 	f32 nextDropTime;
@@ -532,11 +535,65 @@ void GameBoard::update_gameplay(GameBoard *gameboard, const InputState *input)
 }
 int GameBoard::game_Over(GameBoard *gameboard, SDL_Renderer *renderer, TTF_Font *font)
 {
+
 	int playerPoints = gameboard->points;
+	int indexToInsert, currentIndex = 0;
+	/* try to open file to read */
+	std::ifstream ifile;
+	ifile.open("scoreboard.txt");
+	if (ifile)
+	{
+		std::string line;
+		std::list<Player> fileInputPlayer;
+		Player insertPlayer;
+
+		while (getline(ifile, line, ','))
+		{
+			Player tempPlayer;
+			tempPlayer.playTest.playerName = line;
+
+			getline(ifile, line);
+
+			int fileScore = stoi(line);
+
+			tempPlayer.playTest.playerScore = fileScore;
+
+			fileInputPlayer.push_back(tempPlayer);
+
+			if (playerPoints <= fileScore)
+			{
+				indexToInsert = currentIndex;
+			}
+			currentIndex += 1;
+		}
+
+		ifile.close();
+		//To be worked on
+		insertPlayer.playTest.playerName = "testingToBeAmend";
+		insertPlayer.playTest.playerScore = playerPoints;
+
+		auto tempPlayer = fileInputPlayer.begin();
+		advance(tempPlayer, indexToInsert);
+		fileInputPlayer.insert(tempPlayer, insertPlayer);
+
+		std::ofstream ofs("scoreboard.txt", std::ofstream::trunc);
+		for (auto it = fileInputPlayer.begin(); it != fileInputPlayer.end(); it++)
+		{
+			ofs << it->playTest.playerName << "," << it->playTest.playerScore << "\n";
+		}
+		ofs.close();
+	}
+	else
+	{
+		//Need to be worked on
+		std::cout << "file doesn't exist";
+	}
+
 	std::string str = "Continue or Exit?\n Highest Points: " + std::to_string(playerPoints);
 	const char *message = str.c_str();
 	const SDL_MessageBoxButtonData buttons[] = {
-		{/* .flags, .buttonid, .text */ 0, 0, "Exit"},
+		{/* .flags, .buttonid, .text */
+		 0, 0, "Exit"},
 		{SDL_MESSAGEBOX_BUTTON_RETURNKEY_DEFAULT, 1, "Restart"},
 	};
 	const SDL_MessageBoxColorScheme colorScheme = {

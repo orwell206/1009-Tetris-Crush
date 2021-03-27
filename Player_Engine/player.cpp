@@ -1,9 +1,13 @@
 #pragma once
-
-class Player {
+#include <string>
+using namespace std;
+class Player
+{
 public:
-	int id;
-	int score;
-
-	
+	struct PlayerInfo
+	{
+		int playerScore;
+		string playerName;
+	};
+	PlayerInfo playTest;
 };
