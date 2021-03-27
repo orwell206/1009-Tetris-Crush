@@ -153,9 +153,13 @@ void GameBoard::render_game(const GameBoard *gameboard, SDL_Renderer *renderer, 
 		TetrominoPieceState tetro_shadow = gameboard->tetrominoPiece;
 		while (check_tetromino_valid(&tetro_shadow, gameboard->gameboard, WIDTH, HEIGHT))
 		{
-			tetro_shadow.offset_row++;
+			// tetro_shadow.offset_row++;
+			s32 temp = tetro_shadow.get_offset_row();
+			tetro_shadow.set_offset_row(temp + 1);
 		}
-		--tetro_shadow.offset_row;
+		// --tetro_shadow.offset_row;
+		s32 temp = tetro_shadow.get_offset_row();
+		tetro_shadow.set_offset_row(temp - 1);
 
 		draw_tetromino(renderer, &tetro_shadow, 0, 0, true);
 	}
@@ -195,10 +199,11 @@ void GameBoard::draw_tetromino(SDL_Renderer *renderer, const TetrominoPieceState
 	{
 		for (s32 col = 0; col < current_tetro->side; col++)
 		{
-			u8 value = get_tetromino(current_tetro, row, col, tetrominoPiece->rotation);
+			u8 value = get_tetromino(current_tetro, row, col, tetrominoPiece->get_rotation());
 			if (value)
 			{
-				draw_cell(renderer, row + tetrominoPiece->offset_row, col + tetrominoPiece->offset_col, value, offset_x, offset_y, outline);
+				// draw_cell(renderer, row + tetrominoPiece->offset_row, col + tetrominoPiece->offset_col, value, offset_x, offset_y, outline);
+				draw_cell(renderer, (row + tetrominoPiece->get_offset_row()), (col + tetrominoPiece->get_offset_col()), value, offset_x, offset_y, outline);
 			}
 		}
 	}
@@ -371,11 +376,13 @@ bool GameBoard::check_tetromino_valid(const TetrominoPieceState *tetromino_piece
 	{
 		for (s32 col = 0; col < tetromino->side; col++)
 		{
-			u8 value = get_tetromino(tetromino, row, col, tetromino_piece->rotation);
+			u8 value = get_tetromino(tetromino, row, col, tetromino_piece->get_rotation());
 			if (value > 0)
 			{
-				s32 board_row = tetromino_piece->offset_row + row;
-				s32 board_col = tetromino_piece->offset_col + col;
+				// s32 board_row = tetromino_piece->offset_row + row;
+				// s32 board_col = tetromino_piece->offset_col + col;
+				s32 board_row = tetromino_piece->get_offset_row() + row;
+				s32 board_col = tetromino_piece->get_offset_col() + col;
 				if (board_row < 0)
 				{
 					return false;
@@ -406,11 +413,13 @@ void GameBoard::spawn_tetromino(GameBoard *gameboard)
 {
 	// Grabs "next tetromino" and preps it for spawn
 	gameboard->tetrominoPiece.resetState();
-	gameboard->tetrominoPiece.tetromino_index = next_tetromino_index;
-	gameboard->tetrominoPiece.offset_col = WIDTH / 2;
+	// gameboard->tetrominoPiece.tetromino_index = next_tetromino_index;
+	// gameboard->tetrominoPiece.offset_col = WIDTH / 2;
+	gameboard->tetrominoPiece.set_tetromino_index(next_tetromino_index);
+	gameboard->tetrominoPiece.set_offset_col(WIDTH / 2);
 	gameboard->nextDropTime = gameboard->time + get_time_to_next_tetromino_drop(gameboard->level);
 	// Set "current tetromino" to the one prep'ed above
-	current_tetromino = tetrominoStruct.get_TetrominoList() + gameboard->tetrominoPiece.tetromino_index;
+	current_tetromino = tetrominoStruct.get_TetrominoList() + gameboard->tetrominoPiece.get_tetromino_index();
 
 	// Select new randon "next tetromino"
 	next_tetromino_index = (u8)random_tetromino_index(0, tetrominoStruct.get_TetrominoShapeCount());
@@ -431,11 +440,13 @@ void GameBoard::merge_tetrimino_on_board(GameBoard *gameboard, Player *player)
 	{
 		for (s32 col = 0; col < tetromino->side; col++)
 		{
-			u8 value = get_tetromino(tetromino, row, col, gameboard->tetrominoPiece.rotation);
+			u8 value = get_tetromino(tetromino, row, col, gameboard->tetrominoPiece.get_rotation());
 			if (value)
 			{
-				s32 board_row = gameboard->tetrominoPiece.offset_row + row;
-				s32 board_col = gameboard->tetrominoPiece.offset_col + col;
+				// s32 board_row = gameboard->tetrominoPiece.offset_row + row;
+				// s32 board_col = gameboard->tetrominoPiece.offset_col + col;
+				s32 board_row = gameboard->tetrominoPiece.get_offset_row() + row;
+				s32 board_col = gameboard->tetrominoPiece.get_offset_col() + col;
 				set_matrix(gameboard->gameboard, WIDTH, board_row, board_col, value); // problem
 			}
 		}
@@ -444,10 +455,14 @@ void GameBoard::merge_tetrimino_on_board(GameBoard *gameboard, Player *player)
 
 inline bool GameBoard::drop_tetromino(GameBoard *gameboard, Player *player)
 {
-	++gameboard->tetrominoPiece.offset_row;
+	// ++gameboard->tetrominoPiece.offset_row;
+	s32 temp = gameboard->tetrominoPiece.get_offset_row();
+	gameboard->tetrominoPiece.set_offset_row(temp + 1);
 	if (!check_tetromino_valid(&gameboard->tetrominoPiece, gameboard->gameboard, WIDTH, HEIGHT))
 	{
-		--gameboard->tetrominoPiece.offset_row;
+		// --gameboard->tetrominoPiece.offset_row;
+		s32 temp = gameboard->tetrominoPiece.get_offset_row();
+		gameboard->tetrominoPiece.set_offset_row(temp - 1);
 		merge_tetrimino_on_board(gameboard, player);
 		spawn_tetromino(gameboard);
 		return false;
@@ -485,15 +500,21 @@ void GameBoard::update_gameplay(GameBoard *gameboard, const InputState *input)
 	TetrominoPieceState tetrominoPiece = gameboard->tetrominoPiece;
 	if (input->da > 1)
 	{
-		--tetrominoPiece.offset_col;
+		// --tetrominoPiece.offset_col;
+		s32 temp = tetrominoPiece.get_offset_col();
+		tetrominoPiece.set_offset_col(temp - 1);
 	}
 	if (input->dd > 1)
 	{
-		++tetrominoPiece.offset_col;
+		// ++tetrominoPiece.offset_col;
+		s32 temp = tetrominoPiece.get_offset_col();
+		tetrominoPiece.set_offset_col(temp + 1);
 	}
 	if (input->dw > 1)
 	{
-		tetrominoPiece.rotation = (tetrominoPiece.rotation + 1) % 4;
+		// tetrominoPiece.rotation = (tetrominoPiece.rotation + 1) % 4;
+		s32 temp = tetrominoPiece.get_rotation();
+		tetrominoPiece.set_rotation((temp + 1) % 4);
 	}
 
 	if (check_tetromino_valid(&tetrominoPiece, gameboard->gameboard, WIDTH, HEIGHT))
