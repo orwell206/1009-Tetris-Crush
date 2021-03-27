@@ -40,7 +40,7 @@ private:
 
 	u8 next_tetromino_index = (u8)random_tetromino_index(0, tetrominoStruct.get_TetrominoShapeCount());
 	Tetromino *next_tetromino;
-	Tetromino *current_tetromino;
+	Tetromino *current_tetromino = tetrominoStruct.get_TetrominoList() + next_tetromino_index;
 
 	Player *player;
 	Game_Phase gamePhase;
@@ -185,14 +185,13 @@ void GameBoard::draw_on_board(SDL_Renderer *renderer, const u8 *gameboard, s32 w
 
 void GameBoard::draw_tetromino(SDL_Renderer *renderer, const TetrominoPieceState *tetrominoPiece, s32 offset_x, s32 offset_y, bool outline = false)
 {
-	// const Tetromino *current_tetromino = tetrominoStruct.get_TetrominoList() + tetrominoPiece->tetromino_index;
-	const Tetromino *current_tetromino = next_tetromino;
+	const Tetromino *current_tetro = current_tetromino;
 
-	for (s32 row = 0; row < current_tetromino->side; row++)
+	for (s32 row = 0; row < current_tetro->side; row++)
 	{
-		for (s32 col = 0; col < current_tetromino->side; col++)
+		for (s32 col = 0; col < current_tetro->side; col++)
 		{
-			u8 value = get_tetromino(current_tetromino, row, col, tetrominoPiece->rotation);
+			u8 value = get_tetromino(current_tetro, row, col, tetrominoPiece->rotation);
 			if (value)
 			{
 				draw_cell(renderer, row + tetrominoPiece->offset_row, col + tetrominoPiece->offset_col, value, offset_x, offset_y, outline);
@@ -360,8 +359,7 @@ int GameBoard::update_game(GameBoard *gameboard, const InputState *input, SDL_Re
 
 bool GameBoard::check_tetromino_valid(const TetrominoPieceState *tetromino_piece, const u8 *gameboard, s32 width, s32 height)
 {
-	// const Tetromino *tetromino = tetrominoStruct.get_TetrominoList() + tetromino_piece->tetromino_index;
-	const Tetromino *tetromino = next_tetromino;
+	const Tetromino *tetromino = current_tetromino;
 
 	assert(tetromino);
 
@@ -402,15 +400,16 @@ bool GameBoard::check_tetromino_valid(const TetrominoPieceState *tetromino_piece
 
 void GameBoard::spawn_tetromino(GameBoard *gameboard)
 {
-	gameboard->tetrominoPiece = {};
+	// Grabs "next tetromino" and preps it for spawn
+	gameboard->tetrominoPiece.resetState();
 	gameboard->tetrominoPiece.tetromino_index = next_tetromino_index;
 	gameboard->tetrominoPiece.offset_col = WIDTH / 2;
 	gameboard->nextDropTime = gameboard->time + get_time_to_next_tetromino_drop(gameboard->level);
+	// Set "current tetromino" to the one prep'ed above
+	current_tetromino = tetrominoStruct.get_TetrominoList() + gameboard->tetrominoPiece.tetromino_index;
 
+	// Select new randon "next tetromino"
 	next_tetromino_index = (u8)random_tetromino_index(0, tetrominoStruct.get_TetrominoShapeCount());
-	next_tetromino = tetrominoStruct.get_TetrominoList() + next_tetromino_index;
-
-	std::cout << "-" << std::endl;
 	std::cout << tetrominoStruct.get_TetrominoName((int)next_tetromino_index) << std::endl;
 }
 
@@ -422,8 +421,7 @@ int GameBoard::random_tetromino_index(s32 min, s32 max)
 
 void GameBoard::merge_tetrimino_on_board(GameBoard *gameboard, Player *player)
 {
-	// const Tetromino *tetromino = tetrominoStruct.get_TetrominoList() + gameboard->tetrominoPiece.tetromino_index;
-	const Tetromino *tetromino = next_tetromino;
+	const Tetromino *tetromino = current_tetromino;
 
 	for (s32 row = 0; row < tetromino->side; row++)
 	{
@@ -506,8 +504,7 @@ void GameBoard::update_gameplay(GameBoard *gameboard, const InputState *input)
 
 	if (input->dspace > 1)
 	{
-		while (drop_tetromino(gameboard, player))
-			;
+		while (drop_tetromino(gameboard, player));
 	}
 
 	while (gameboard->time >= gameboard->nextDropTime)
