@@ -5,3 +5,4 @@ SDL2/include_mac
 rMac
 *.exe
 .vscode
+scoreboard.txt
