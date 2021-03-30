@@ -33,4 +33,4 @@ void TetrominoPieceState::set_offset_row(s32 offset_row) { this->offset_row = of
 s32 TetrominoPieceState::get_offset_col() const { return offset_col; }
 void TetrominoPieceState::set_offset_col(s32 offset_col) { this->offset_col = offset_col; }
 s32 TetrominoPieceState::get_rotation() const { return rotation; }
-void TetrominoPieceState::set_rotation(s32 rotation) { this->rotation = rotation; } 
+void TetrominoPieceState::set_rotation(s32 rotation) { this->rotation = rotation; }
