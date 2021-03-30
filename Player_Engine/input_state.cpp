@@ -1,11 +1,8 @@
 #pragma once
-
 #include "../common_data.hpp"
 
-class InputState {
+struct InputState {
 	public:
-
-		// P1 Controls
 		u8 a;
 		u8 d;
 		u8 w;
@@ -18,11 +15,3 @@ class InputState {
 		u8 ds;
 		u8 dspace;
 };
-
-
-
-// struct InputState{
-// 	s8 dleft;
-// 	s8 dright;
-// 	s8 dup;
-// };

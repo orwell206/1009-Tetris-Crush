@@ -1,7 +1,8 @@
+#pragma once
 #include "../common_data.hpp"
 #include "tetromino_piece_state.cpp"
 #include "tetromino.cpp"
-#include "colours.hpp"
+#include "gameboard_graphics.cpp"
 #include "../Player_Engine/input_state.cpp"
 #include "../Player_Engine/player.cpp"
 #include <SDL2/SDL_ttf.h>
@@ -9,46 +10,17 @@
 #include <string>
 #include <cctype>
 #include <fstream>
-
 #include <list>
-#define WIDTH 10
-#define HEIGHT 19
-#define PLAYABLE_HEIGHT 16
-#define GRID_SIZE 30
-#define TEXT_HORZ_ALIGN (WIDTH * GRID_SIZE + 30)
-#define TEXT_VERT_ALIGN HEIGHT
 
 const u8 FRAMES_PER_DROP[] = {48, 43, 38, 33, 28, 23, 18, 13, 8, 6, 5, 5, 5, 4, 4, 4, 3, 3, 3, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 1};
 const f32 TARGET_SECONDS_PER_FRAME = 1.f / 60.f;
 
-enum Game_Phase
-{
-	GAME_PHASE_PLAY,
-	GAME_PHASE_LINE,
-	GAME_PHASE_GAMEOVER,
-};
-enum Text_Align
-{
-	TEXT_ALIGN_LEFT,
-	TEXT_ALIGN_CENTER,
-	TEXT_ALIGN_RIGHT
-};
 
-class GameBoard
-{
+class GameBoard: public GameBoardGraphics {
 private:
 	u8 gameboard[WIDTH * HEIGHT];
 	u8 lines[HEIGHT];
 	s32 pending_line_count;
-
-	TetrominoPieceState tetrominoPiece;
-	TetrominoGenerator tetrominoStruct;
-
-	u8 next_tetromino_index = (u8)random_tetromino_index(0, tetrominoStruct.get_TetrominoShapeCount());
-	Tetromino *next_tetromino;
-	TetrominoPieceState next_tetrominoPiece;
-	Tetromino *current_tetromino = tetrominoStruct.get_TetrominoList() + next_tetromino_index;
-
 	Player *player;
 	Game_Phase gamePhase;
 	f32 nextDropTime;
@@ -63,26 +35,15 @@ public:
 	f32 get_GameBoardTime();
 	void set_GameBoardTime(f32);
 	void set_player(Player &);
-	void draw_text(SDL_Renderer *, TTF_Font *, const char *, s32, s32, Text_Align, Color);
 	void render_clearline_graphics(const GameBoard *, SDL_Renderer *);
 	void render_game(const GameBoard *, SDL_Renderer *, TTF_Font *);
-	void draw_on_board(SDL_Renderer *, const u8 *, s32, s32, s32, s32);
-	void draw_tetromino(SDL_Renderer *, const TetrominoPieceState *, s32, s32, bool);
-	void draw_cell_board(SDL_Renderer *, s32, s32, u8, s32, s32, bool);
-	void draw_cell_preview(SDL_Renderer *, s32, s32, u8, s32, s32);
-	void fill_rect(SDL_Renderer *, s32, s32, s32, s32, Color);
-	void draw_rect(SDL_Renderer *, s32, s32, s32, s32, Color);
-	inline u8 get_tetromino(const Tetromino *, s32, s32, s32);
 	inline u8 check_if_row_filled(const u8 *, s32, s32);
 	inline u8 check_if_row_empty(const u8 *, s32, s32);
 	s32 find_lines(const u8 *, s32, s32, u8 *);
 	void clear_lines(u8 *, s32, s32, const u8 *);
-	inline u8 get_matrix(const u8 *, s32, s32, s32);
-	inline void set_matrix(u8 *, s32, s32, s32, u8);
 	int update_game(GameBoard *, const InputState *, SDL_Renderer *, TTF_Font *);
 	bool check_tetromino_valid(const TetrominoPieceState *, const u8 *, s32, s32);
 	void spawn_tetromino(GameBoard *);
-	int random_tetromino_index(s32, s32);
 	void merge_tetrimino_on_board(GameBoard *, Player *);
 	inline bool drop_tetromino(GameBoard *, Player *);
 	inline f32 get_time_to_next_tetromino_drop(s32);
@@ -96,39 +57,6 @@ f32 GameBoard::get_GameBoardTime() { return time; }
 void GameBoard::set_GameBoardTime(f32 time) { this->time = time; }
 
 void GameBoard::set_player(Player &player) { this->player = &player; }
-
-void GameBoard::draw_text(SDL_Renderer *renderer,
-						  TTF_Font *font,
-						  const char *text,
-						  s32 x, s32 y,
-						  Text_Align alignment,
-						  Color color)
-{
-	SDL_Color sdl_color = {color.r, color.g, color.b, color.a};
-	SDL_Surface *surface = TTF_RenderText_Solid(font, text, sdl_color);
-	SDL_Texture *texture = SDL_CreateTextureFromSurface(renderer, surface);
-
-	SDL_Rect rect;
-	rect.y = y;
-	rect.w = surface->w;
-	rect.h = surface->h;
-	switch (alignment)
-	{
-	case TEXT_ALIGN_LEFT:
-		rect.x = x;
-		break;
-	case TEXT_ALIGN_CENTER:
-		rect.x = x - surface->w / 2;
-		break;
-	case TEXT_ALIGN_RIGHT:
-		rect.x = x - surface->w;
-		break;
-	}
-
-	SDL_RenderCopy(renderer, texture, 0, &rect);
-	SDL_FreeSurface(surface);
-	SDL_DestroyTexture(texture);
-}
 
 void GameBoard::render_clearline_graphics(const GameBoard *gameboard, SDL_Renderer *renderer)
 {
@@ -182,140 +110,6 @@ void GameBoard::render_game(const GameBoard *gameboard, SDL_Renderer *renderer, 
 	draw_text(renderer, font, buffer, x, (y + 50), TEXT_ALIGN_LEFT, highlight_color);
 
 	draw_text(renderer, font, "NEXT BLOCK:", x, (y + 120), TEXT_ALIGN_LEFT, highlight_color);
-}
-
-void GameBoard::draw_on_board(SDL_Renderer *renderer, const u8 *gameboard, s32 width, s32 height, s32 offset_x, s32 offset_y)
-{
-	for (s32 row = 0; row < height; row++)
-	{
-		for (s32 col = 0; col < width; col++)
-		{
-			u8 value = get_matrix(gameboard, width, row, col);
-			draw_cell_board(renderer, row, col, value, offset_x, offset_y, false);
-		}
-	}
-}
-
-void GameBoard::draw_tetromino(SDL_Renderer *renderer, const TetrominoPieceState *tetrominoPiece, s32 offset_x, s32 offset_y, bool outline = false)
-/*
-* Main "moving" tetromino render function
-*/
-{
-	const Tetromino *current_tetro = current_tetromino;
-	const Tetromino *next_tetro = next_tetromino;
-
-	// For gameboard tetros
-	for (s32 row = 0; row < current_tetro->side; row++)
-	{
-		for (s32 col = 0; col < current_tetro->side; col++)
-		{
-			u8 value = get_tetromino(current_tetro, row, col, tetrominoPiece->get_rotation());
-			if (value)
-			{
-				draw_cell_board(renderer, (row + tetrominoPiece->get_offset_row()), (col + tetrominoPiece->get_offset_col()), value, offset_x, offset_y, outline);
-			}
-		}
-	}
-
-	// For preview tetros
-	for (s32 row = 0; row < next_tetro->side; row++)
-	{
-		for (s32 col = 0; col < next_tetro->side; col++)
-		{
-			u8 value2 = get_tetromino(next_tetromino, row, col, next_tetrominoPiece.get_rotation());
-			if (value2)
-			{
-				s32 x = TEXT_HORZ_ALIGN; // Horizontal
-				s32 y = TEXT_VERT_ALIGN + 170;	// Vertical
-				draw_cell_preview(renderer, row, col, value2, x, y);
-			}
-		}
-	}
-}
-
-void GameBoard::draw_cell_board(SDL_Renderer *renderer, s32 row, s32 col, u8 value, s32 offset_x, s32 offset_y, bool outline = false)
-/*
-* Main logic gameboard and tetromino colors
-*/
-{
-	Color base_color = BASE_COLORS[value];
-	Color light_color = LIGHT_COLORS[value];
-	Color dark_color = DARK_COLORS[value];
-
-	s32 edge = GRID_SIZE / 8;
-	s32 x = col * GRID_SIZE + offset_x;
-	s32 y = row * GRID_SIZE + offset_y;
-
-	if (outline)
-	{
-		draw_rect(renderer, x, y, GRID_SIZE, GRID_SIZE, base_color);
-		return;
-	}
-	// fill_rect(renderer, x, y, GRID_SIZE, GRID_SIZE, dark_color); // Disabled to have "grid" effect
-	fill_rect(renderer, x + edge, y, GRID_SIZE - edge, GRID_SIZE - edge, light_color);
-	fill_rect(renderer, x + edge, y + edge, GRID_SIZE - edge * 2, GRID_SIZE - edge * 2, base_color);
-}
-
-void GameBoard::draw_cell_preview(SDL_Renderer *renderer, s32 row, s32 col, u8 value, s32 offset_x, s32 offset_y)
-/*
-* Main logic gameboard and tetromino colors
-*/
-{
-	Color base_color = BASE_COLORS[value];
-	Color light_color = LIGHT_COLORS[value];
-	Color dark_color = DARK_COLORS[value];
-
-	s32 edge = GRID_SIZE / 8; // Helps draw black "dividers"
-	s32 x = col * GRID_SIZE + offset_x; // Horizontal position on board
-	s32 y = row * GRID_SIZE + offset_y; // Vertical position on board
-
-	fill_rect(renderer, x + edge, y, GRID_SIZE - edge, GRID_SIZE - edge, light_color);
-	fill_rect(renderer, x + edge, y + edge, GRID_SIZE - edge * 2, GRID_SIZE - edge * 2, base_color);
-}
-
-void GameBoard::fill_rect(SDL_Renderer *renderer, s32 x, s32 y, s32 width, s32 height, Color color)
-/*
-* For main gameboard and tetromino
-*/
-{
-	SDL_Rect rect = {};
-	rect.x = x;
-	rect.y = y;
-	rect.w = width;
-	rect.h = height;
-	SDL_SetRenderDrawColor(renderer, color.r, color.g, color.b, color.a);
-	SDL_RenderFillRect(renderer, &rect);
-}
-
-void GameBoard::draw_rect(SDL_Renderer *renderer, s32 x, s32 y, s32 width, s32 height, Color color)
-/*
-* For the tetromino "shadow", draw but don't fill
-*/
-{
-	SDL_Rect rect = {};
-	rect.x = x;
-	rect.y = y;
-	rect.w = width;
-	rect.h = height;
-	SDL_SetRenderDrawColor(renderer, color.r, color.g, color.b, color.a);
-	SDL_RenderDrawRect(renderer, &rect);
-}
-
-inline u8 GameBoard::get_tetromino(const Tetromino *tetromino, s32 row, s32 col, s32 rotation)
-{
-	s32 side = tetromino->side;
-	switch (rotation)
-	{
-	case 0:
-		return tetromino->matrix[row * side + col];
-	case 1:
-		return tetromino->matrix[(side - col - 1) * side + row];
-	case 2:
-		return tetromino->matrix[(side - row - 1) * side + (side - col - 1)];
-	case 3:
-		return tetromino->matrix[col * side + (side - row - 1)];
-	}
-	return 0;
 }
 
 inline u8 GameBoard::check_if_row_filled(const u8 *values, s32 width, s32 row)
@@ -374,18 +168,6 @@ void GameBoard::clear_lines(u8 *values, s32 width, s32 height, const u8 *lines)
 			src_row--;
 		}
 	}
-}
-
-inline u8 GameBoard::get_matrix(const u8 *values, s32 width, s32 row, s32 col)
-{
-	s32 index = row * width + col;
-	return values[index];
-}
-
-inline void GameBoard::set_matrix(u8 *values, s32 width, s32 row, s32 col, u8 value)
-{
-	s32 index = (row * width + col);
-	values[index] = value;
 }
 
 int GameBoard::update_game(GameBoard *gameboard, const InputState *input, SDL_Renderer *renderer, TTF_Font *font)
@@ -464,12 +246,6 @@ void GameBoard::spawn_tetromino(GameBoard *gameboard)
 	// Select new randon "next tetromino"
 	next_tetromino_index = (u8)random_tetromino_index(0, tetrominoStruct.get_TetrominoShapeCount());
 	next_tetromino = tetrominoStruct.get_TetrominoList() + next_tetromino_index;
-}
-
-int GameBoard::random_tetromino_index(s32 min, s32 max)
-{
-	s32 range = max - min;
-	return min + rand() % range;
 }
 
 void GameBoard::merge_tetrimino_on_board(GameBoard *gameboard, Player *player)
