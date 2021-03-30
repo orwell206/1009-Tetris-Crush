@@ -45,5 +45,5 @@ private:
 public:
 	int get_TetrominoShapeCount() { return tetromino_shape_count; };
 	Tetromino *get_TetrominoList() { return tetromino_list; };
-	const char *get_TetrominoName(int i) { return tetromino_names[i]; }; 
+	const char *get_TetrominoName(int i) { return tetromino_names[i]; };
 };
