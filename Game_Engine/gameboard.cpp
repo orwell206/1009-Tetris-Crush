@@ -151,7 +151,7 @@ s32 GameBoard::find_lines(const u8 *values, s32 width, s32 height, u8 *lines_out
 
 void GameBoard::clear_lines(u8 *values, s32 width, s32 height, const u8 *lines)
 {
-    // play sound effect
+    // Play sound effect
     Mix_Chunk *clearSound = Mix_LoadWAV(PATH_SE_CLEAR);
     SoundEffect SEclearSound;
     SEclearSound.load(clearSound);
@@ -257,7 +257,7 @@ void GameBoard::spawn_tetromino(GameBoard *gameboard)
 
 void GameBoard::merge_tetrimino_on_board(GameBoard *gameboard)
 {
-    // play sound effect
+    // Play sound effect
     Mix_Chunk *fallTetris = Mix_LoadWAV(PATH_SE_FALL);
     SoundEffect SEfallTetris;
     SEfallTetris.load(fallTetris);

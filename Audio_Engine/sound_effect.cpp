@@ -2,11 +2,10 @@
 
 class SoundEffect: public Audio{
 public:
-    void play();    // override
+    void play();    // Overriding - to play the audio once only
 };
 
 void SoundEffect::play() {
-    // play on channel -1, which is the first free channel
-    Mix_PlayChannel(-1, audioChunk,0);  
+    Mix_PlayChannel(-1, audioChunk,0);  // (channel,audio,loop=0)
     Mix_HaltChannel(1);
 }
