@@ -20,11 +20,21 @@ int main()
 	{
 		return -1;
 	}
+    if (SDL_Init(SDL_INIT_AUDIO) < 0)
+    {
+        return -1;
+    }
 	//For TTF font
 	if (TTF_Init() < 0)
 	{
 		return 2;
 	}
+
+    if(Mix_OpenAudio(44100,MIX_DEFAULT_FORMAT,2,2048)<0)
+    {
+        return -1;
+    }
+
 	bool restart = false;
 	do
 	{
@@ -45,6 +55,13 @@ int main()
 		//Open font
 		const char *font_name = "novem___.ttf";
 		TTF_Font *font = TTF_OpenFont(font_name, 24);
+
+        // play background music
+        Mix_Music *bgmusic = Mix_LoadMUS(PATH_BGM);
+        Audio bgm;
+        bgm.load(bgmusic);
+        bgm.play();
+
 		while (!quit)
 		{
 			gameboard.set_GameBoardTime(SDL_GetTicks() / 1000.0f);
