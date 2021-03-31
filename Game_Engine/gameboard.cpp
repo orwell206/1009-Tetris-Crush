@@ -314,19 +314,19 @@ void GameBoard::update_gameplay(GameBoard *gameboard, const InputState *input)
 {
 
 	TetrominoPieceState tetrominoPiece = gameboard->tetrominoPiece;
-	if (input->da > 1)
+	if (input->get_da() > 1)
 	{
 		// --tetrominoPiece.offset_col;
 		s32 temp = tetrominoPiece.get_offset_col();
 		tetrominoPiece.set_offset_col(temp - 1);
 	}
-	if (input->dd > 1)
+	if (input->get_dd() > 1)
 	{
 		// ++tetrominoPiece.offset_col;
 		s32 temp = tetrominoPiece.get_offset_col();
 		tetrominoPiece.set_offset_col(temp + 1);
 	}
-	if (input->dw > 1)
+	if (input->get_dw() > 1)
 	{
 		// tetrominoPiece.rotation = (tetrominoPiece.rotation + 1) % 4;
 		s32 temp = tetrominoPiece.get_rotation();
@@ -338,12 +338,12 @@ void GameBoard::update_gameplay(GameBoard *gameboard, const InputState *input)
 		gameboard->tetrominoPiece = tetrominoPiece;
 	}
 
-	if (input->ds > 1)
+	if (input->get_ds() > 1)
 	{
 		drop_tetromino(gameboard, player);
 	}
 
-	if (input->dspace > 1)
+	if (input->get_dspace() > 1)
 	{
 		while (drop_tetromino(gameboard, player));
 	}

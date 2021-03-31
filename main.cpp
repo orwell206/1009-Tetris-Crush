@@ -64,19 +64,18 @@ int main()
 			const u8 *key_states = SDL_GetKeyboardState(&key_count);
 
 			InputState prev_input = input;
+			
+			input.set_a(key_states[SDL_SCANCODE_A]);
+			input.set_d(key_states[SDL_SCANCODE_D]);
+			input.set_w(key_states[SDL_SCANCODE_W]);
+			input.set_s(key_states[SDL_SCANCODE_S]);
+			input.set_space(key_states[SDL_SCANCODE_SPACE]);
 
-			// P1 Controls
-			input.a = key_states[SDL_SCANCODE_A];
-			input.d = key_states[SDL_SCANCODE_D];
-			input.w = key_states[SDL_SCANCODE_W];
-			input.s = key_states[SDL_SCANCODE_S];
-			input.space = key_states[SDL_SCANCODE_SPACE];
-
-			input.da = input.a - prev_input.a;
-			input.dd = input.d - prev_input.d;
-			input.dw = input.w - prev_input.w;
-			input.ds = input.s - prev_input.s;
-			input.dspace = input.space - prev_input.space;
+			input.set_da(input.get_a() - prev_input.get_a());
+			input.set_dd(input.get_d() - prev_input.get_d());
+			input.set_dw(input.get_w() - prev_input.get_w());
+			input.set_ds(input.get_s() - prev_input.get_s());
+			input.set_dspace(input.get_space() - prev_input.get_space());
 
 			SDL_SetRenderDrawColor(renderer, 0, 0, 0, 0);
 			SDL_RenderClear(renderer);
