@@ -1,4 +1,24 @@
-#include "audio.h"
+#include <SDL2/SDL.h>
+#include <SDL2/SDL_mixer.h>
+
+#define PATH_BGM "Assets/Tetris.wav"
+#define PATH_SE_CLEAR "Assets/ClearSound.wav"
+#define PATH_SE_FALL "Assets/FallTetris.wav"
+
+class Audio {
+protected: 
+    Mix_Music *audioMusic;
+    Mix_Chunk *audioChunk;
+    bool runningStatus = false;
+    int volume = 50;             // default volume = 50
+public:
+    void load(Mix_Music*);       // overloading
+    void load(Mix_Chunk*);       // overloading
+    void play();
+    void stop();
+    void setStatus(bool);
+    bool getStatus();
+};
 
 void Audio::load(Mix_Music *audio) {
     audioMusic = audio;
@@ -16,12 +36,10 @@ void Audio::play() {
     if(Mix_PlayingMusic()){
         Mix_ResumeMusic();
     }
-    runningStatus = true;
 }
 
-void Audio::pause() {
-    Mix_PauseMusic();
-    runningStatus = false;
+void Audio::stop() {
+    Mix_HaltMusic();
 }
 
 void Audio::setStatus(bool status){
@@ -30,39 +48,4 @@ void Audio::setStatus(bool status){
 
 bool Audio::getStatus(){
     return runningStatus;
-}
-
-void Audio::setVolume(int volume){
-    //SDL_MixAudio(Uint8 *dst, Uint8 *src, Uint32 len, int volume);
-    if (volume>100) {
-        this->volume = 100;  // if volume is greater than 100, set volume to 100
-    } else if (volume<0) {
-        this->volume = 30;  // if volume is negative, take default volume
-    } else {
-        this->volume = volume;
-    }  
-
-    //printf("volume was    : %d\n", Mix_VolumeMusic(this->volume));
-    //printf("volume is now : %d\n", Mix_VolumeMusic(-1));
-
-    
-}
-
-
-void SoundEffect::play() {
-    Mix_PlayChannel(-1, audioChunk,0);   // play on channel -1 = first free channel
-    Mix_HaltChannel(1);
-}
-
-void SoundEffect::setVolume(int volume){
-    if (volume>100) {
-        this->volume = 100;  // if volume is greater than 100, set volume to 100
-    } else if (volume<0) {
-        this->volume = 30;  // if volume is negative, take default volume
-    } else {
-        this->volume = volume;
-    }  
-    
-    Mix_VolumeChunk(audioChunk,volume);
-    //cout << Mix_VolumeChunk(audioChunk,volume) <<endl;
 }

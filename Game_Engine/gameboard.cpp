@@ -5,7 +5,7 @@
 #include "gameboard_graphics.cpp"
 #include "../Player_Engine/input_state.cpp"
 #include "../Player_Engine/player.cpp"
-#include "../Audio_Engine/audio.cpp"
+#include "../Audio_Engine/sound_effect.cpp"
 #include <SDL2/SDL_ttf.h>
 #include <iostream>
 #include <string>
@@ -262,7 +262,7 @@ void GameBoard::merge_tetrimino_on_board(GameBoard *gameboard)
     SoundEffect SEfallTetris;
     SEfallTetris.load(fallTetris);
     SEfallTetris.play();
-    
+
 	const Tetromino *tetromino = current_tetromino;
 
 	for (s32 row = 0; row < tetromino->side; row++)

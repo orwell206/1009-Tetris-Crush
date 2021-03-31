@@ -61,6 +61,7 @@ int main()
         Audio bgm;
         bgm.load(bgmusic);
         bgm.play();
+        bgm.setStatus(true);
 
 		while (!quit)
 		{
@@ -100,7 +101,12 @@ int main()
 			int returnValue = gameboard.update_game(&gameboard, &input, renderer, font);
 			if (returnValue == 0)
 			{
-
+                // stop playing background music
+                if (bgm.getStatus()){
+                    bgm.stop();
+                    bgm.setStatus(false);
+                }
+                
 				quit = true;
 				restart = true;
 			}
