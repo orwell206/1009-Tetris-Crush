@@ -1,7 +1,7 @@
 #pragma once
 #include "../common_data.hpp"
-#include "tetromino_piece_state.cpp"
-#include "tetromino.cpp"
+#include "../Tetromino_Logic/tetromino_piece_state.cpp"
+#include "../Tetromino_Logic/tetromino.cpp"
 #include "gameboard_graphics.cpp"
 #include "../Player_Engine/input_state.cpp"
 #include "../Player_Engine/player.cpp"
@@ -44,8 +44,8 @@ public:
 	int update_game(GameBoard *, const InputState *, SDL_Renderer *, TTF_Font *);
 	bool check_tetromino_valid(const TetrominoPieceState *, const u8 *, s32, s32);
 	void spawn_tetromino(GameBoard *);
-	void merge_tetrimino_on_board(GameBoard *, Player *);
-	inline bool drop_tetromino(GameBoard *, Player *);
+	void merge_tetrimino_on_board(GameBoard *);
+	inline bool drop_tetromino(GameBoard *);
 	inline f32 get_time_to_next_tetromino_drop(s32);
 	void update_gameline(GameBoard *);
 	void update_gameplay(GameBoard *, const InputState *);
@@ -248,7 +248,7 @@ void GameBoard::spawn_tetromino(GameBoard *gameboard)
 	next_tetromino = tetrominoStruct.get_TetrominoList() + next_tetromino_index;
 }
 
-void GameBoard::merge_tetrimino_on_board(GameBoard *gameboard, Player *player)
+void GameBoard::merge_tetrimino_on_board(GameBoard *gameboard)
 {
 	const Tetromino *tetromino = current_tetromino;
 
@@ -269,7 +269,7 @@ void GameBoard::merge_tetrimino_on_board(GameBoard *gameboard, Player *player)
 	}
 }
 
-inline bool GameBoard::drop_tetromino(GameBoard *gameboard, Player *player)
+inline bool GameBoard::drop_tetromino(GameBoard *gameboard)
 {
 	// ++gameboard->tetrominoPiece.offset_row;
 	s32 temp = gameboard->tetrominoPiece.get_offset_row();
@@ -279,7 +279,7 @@ inline bool GameBoard::drop_tetromino(GameBoard *gameboard, Player *player)
 		// --gameboard->tetrominoPiece.offset_row;
 		s32 temp = gameboard->tetrominoPiece.get_offset_row();
 		gameboard->tetrominoPiece.set_offset_row(temp - 1);
-		merge_tetrimino_on_board(gameboard, player);
+		merge_tetrimino_on_board(gameboard);
 		spawn_tetromino(gameboard);
 		return false;
 	}
@@ -340,17 +340,17 @@ void GameBoard::update_gameplay(GameBoard *gameboard, const InputState *input)
 
 	if (input->get_ds() > 1)
 	{
-		drop_tetromino(gameboard, player);
+		drop_tetromino(gameboard);
 	}
 
 	if (input->get_dspace() > 1)
 	{
-		while (drop_tetromino(gameboard, player));
+		while (drop_tetromino(gameboard));
 	}
 
 	while (gameboard->time >= gameboard->nextDropTime)
 	{
-		drop_tetromino(gameboard, player);
+		drop_tetromino(gameboard);
 	}
 
 	s32 line_count = find_lines(gameboard->gameboard, WIDTH, HEIGHT, gameboard->lines);
