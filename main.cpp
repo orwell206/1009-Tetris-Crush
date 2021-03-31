@@ -24,7 +24,7 @@ enum TextAlign
 	TEXTALIGNCENTER,
 	TEXTALIGNRIGHT
 };
-
+string playerName;
 int runGameBoard(string playerName)
 {
 	// Seed random
@@ -34,152 +34,143 @@ int runGameBoard(string playerName)
 	{
 		return -1;
 	}
-    
+
 	//For TTF font
 	if (TTF_Init() < 0)
 	{
 		return 2;
 	}
 
-    if (SDL_Init(SDL_INIT_AUDIO) < 0)
-    {
-        return -1;
-    }    
-  
-	bool restart = false;
-	do
-	{
-        // Initialise SDL mixer
-        if(Mix_OpenAudio(44100,MIX_DEFAULT_FORMAT,2,2048)<0)
-        {
-            return -1;
-        }
-
-		// SDL_Window *window = SDL_CreateWindow("Tetris Crush Team 42", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, 780, 570, SDL_WINDOW_OPENGL | SDL_WINDOW_SHOWN);
-		SDL_Window *window = SDL_CreateWindow("Tetris Crush Team 42", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, 500, 570, SDL_WINDOW_OPENGL | SDL_WINDOW_SHOWN);
-		SDL_Renderer *renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC);
-
-		Player player;
-		player.playTest.playerName = playerName;
-		GameBoard gameboard{};
-		gameboard.set_player(player);
-
-		InputState input = {};
-
-		gameboard.spawn_tetromino(&gameboard);
-
-		bool quit = false;
-
-		// Open font
-		const char *font_name = "novem___.ttf";
-		TTF_Font *font = TTF_OpenFont(font_name, 24);
-
-        // Play background music
-        Mix_Music *bgmusic = Mix_LoadMUS(PATH_BGM);
-        Audio bgm;
-        bgm.load(bgmusic);
-        bgm.play();
-        bgm.setStatus(true);
-
-		while (!quit)
-		{
-            
-			gameboard.set_GameBoardTime(SDL_GetTicks() / 1000.0f);
-
-			SDL_Event e;
-			while (SDL_PollEvent(&e) != 0)
-			{
-
-				if (e.type == SDL_QUIT)
-				{
-					quit = true;
-					restart = true;
-				}
-			}
-
-			s32 key_count;
-			const u8 *key_states = SDL_GetKeyboardState(&key_count);
-
-			InputState prev_input = input;
-
-			input.set_a(key_states[SDL_SCANCODE_A]);
-			input.set_d(key_states[SDL_SCANCODE_D]);
-			input.set_w(key_states[SDL_SCANCODE_W]);
-			input.set_s(key_states[SDL_SCANCODE_S]);
-			input.set_space(key_states[SDL_SCANCODE_SPACE]);
-
-			input.set_da(input.get_a() - prev_input.get_a());
-			input.set_dd(input.get_d() - prev_input.get_d());
-			input.set_dw(input.get_w() - prev_input.get_w());
-			input.set_ds(input.get_s() - prev_input.get_s());
-			input.set_dspace(input.get_space() - prev_input.get_space());
-
-			SDL_SetRenderDrawColor(renderer, 0, 0, 0, 0);
-			SDL_RenderClear(renderer);
-
-			int returnValue = gameboard.update_game(&gameboard, &input, renderer, font);
-			if (returnValue == 0)
-			{
-                // Stop playing background music
-                if (bgm.getStatus()){
-                    bgm.stop();
-                    bgm.setStatus(false);
-                }
-
-				quit = true;
-				restart = true;
-                
-			}
-			else if (returnValue == 1)
-			{
-				restart = false;
-				quit = true;
-			}
-			gameboard.render_game(&gameboard, renderer, font);
-
-			SDL_RenderPresent(renderer);
-		}
-
-		// Close font after game close
-		TTF_CloseFont(font);
-		SDL_DestroyRenderer(renderer);
-		SDL_RenderClear(renderer);
-        
-        // Close SDL mixer
-        Mix_CloseAudio();
-
-		SDL_Quit();
-	} while (!restart);
-	//Close font after game close
-	exit(1);
-}
-
-int main()
-{
-
-	GameBoardGraphics graph{};
-	bool quit = false;
-	SDL_Event event;
-	if (SDL_Init(SDL_INIT_VIDEO) < 0)
+	if (SDL_Init(SDL_INIT_AUDIO) < 0)
 	{
 		return -1;
 	}
-	//For TTF font
-	if (TTF_Init() < 0)
+	if (Mix_OpenAudio(44100, MIX_DEFAULT_FORMAT, 2, 2048) < 0)
 	{
-		return 2;
+		return -1;
 	}
-	SDL_Init(SDL_INIT_EVERYTHING);
-	//Open font
+	// Play background music
+	Mix_Music *bgmusic = Mix_LoadMUS(PATH_BGM);
+	Audio bgm;
+	bgm.load(bgmusic);
+	bgm.play();
+	bgm.setStatus(true);
+	// SDL_Window *window = SDL_CreateWindow("Tetris Crush Team 42", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, 780, 570, SDL_WINDOW_OPENGL | SDL_WINDOW_SHOWN);
+	SDL_Window *window = SDL_CreateWindow("Tetris Crush Team 42", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, 500, 570, SDL_WINDOW_OPENGL | SDL_WINDOW_SHOWN);
+	SDL_Renderer *renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC);
+
+	Player player;
+	player.playTest.playerName = playerName;
+	GameBoard gameboard{};
+	gameboard.set_player(player);
+
+	InputState input = {};
+
+	gameboard.spawn_tetromino(&gameboard);
+
+	bool quit = false;
+
+	// Open font
+	const char *font_name = "novem___.ttf";
+	TTF_Font *font = TTF_OpenFont(font_name, 24);
+
+	while (!quit)
+	{
+
+		gameboard.set_GameBoardTime(SDL_GetTicks() / 1000.0f);
+
+		SDL_Event e;
+		while (SDL_PollEvent(&e) != 0)
+		{
+
+			if (e.type == SDL_QUIT)
+			{
+				quit = true;
+				// Close font after game close
+				TTF_CloseFont(font);
+				SDL_DestroyRenderer(renderer);
+				SDL_RenderClear(renderer);
+				// Close SDL mixer
+				Mix_CloseAudio();
+				SDL_Quit();
+				return 1;
+				//restart = true;
+			}
+		}
+
+		s32 key_count;
+		const u8 *key_states = SDL_GetKeyboardState(&key_count);
+
+		InputState prev_input = input;
+
+		input.set_a(key_states[SDL_SCANCODE_A]);
+		input.set_d(key_states[SDL_SCANCODE_D]);
+		input.set_w(key_states[SDL_SCANCODE_W]);
+		input.set_s(key_states[SDL_SCANCODE_S]);
+		input.set_space(key_states[SDL_SCANCODE_SPACE]);
+
+		input.set_da(input.get_a() - prev_input.get_a());
+		input.set_dd(input.get_d() - prev_input.get_d());
+		input.set_dw(input.get_w() - prev_input.get_w());
+		input.set_ds(input.get_s() - prev_input.get_s());
+		input.set_dspace(input.get_space() - prev_input.get_space());
+
+		SDL_SetRenderDrawColor(renderer, 0, 0, 0, 0);
+		SDL_RenderClear(renderer);
+
+		int returnValue = gameboard.update_game(&gameboard, &input, renderer, font);
+		if (returnValue == 0)
+		{
+			// Stop playing background music
+			if (bgm.getStatus())
+			{
+				bgm.stop();
+				bgm.setStatus(false);
+			}
+
+			quit = true;
+			// Close font after game close
+			TTF_CloseFont(font);
+			SDL_DestroyRenderer(renderer);
+			SDL_RenderClear(renderer);
+			// Close SDL mixer
+			Mix_CloseAudio();
+			SDL_Quit();
+			return 1;
+			//	restart = true;
+		}
+		else if (returnValue == 1)
+		{
+			// Close font after game close
+			TTF_CloseFont(font);
+			SDL_DestroyRenderer(renderer);
+			SDL_RenderClear(renderer);
+
+			// Close SDL mixer
+			Mix_CloseAudio();
+			SDL_Quit();
+			return 0;
+			//restart = false;
+			quit = true;
+		}
+		gameboard.render_game(&gameboard, renderer, font);
+
+		SDL_RenderPresent(renderer);
+	}
+	return 1;
+}
+int renderText()
+{
 	const char *font_name = "novem___.ttf";
 	TTF_Font *font = TTF_OpenFont(font_name, 24);
 	SDL_Window *window = SDL_CreateWindow("Tetris Crush Team 42", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, 500, 570, SDL_WINDOW_OPENGL | SDL_WINDOW_SHOWN);
 	SDL_Renderer *renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC);
-
 	s32 x = 350 * 0.7;
 	s32 y = 80;
 	Color highlight_color = Color(0xFF, 0xFF, 0xFF, 0xFF);
-
+	GameBoardGraphics graph{};
+	bool quit = false;
+	SDL_Event event;
 	//Testign TextBox
 	//Event handler
 	SDL_Event e;
@@ -209,19 +200,25 @@ int main()
 			if (e.type == SDL_QUIT)
 			{
 				quit = true;
-				break;
+				SDL_StopTextInput();
+				SDL_DestroyRenderer(renderer);
+				SDL_RenderClear(renderer);
+				TTF_CloseFont(font);
+				SDL_Quit();
+				return 0;
 			}
 			if (key_states2[SDL_SCANCODE_RETURN])
 			{
 
 				if (inputText != "")
 				{
+					playerName = inputText;
 					SDL_StopTextInput();
 					SDL_DestroyRenderer(renderer);
 					SDL_RenderClear(renderer);
 					TTF_CloseFont(font);
 					SDL_Quit();
-					runGameBoard(inputText);
+					return 1;
 				}
 			}
 			//Special key input
@@ -287,14 +284,50 @@ int main()
 
 		//Update screen
 		SDL_RenderPresent(renderer);
-	} //Disable text input
-	SDL_StopTextInput();
+	}
+	return 0;
+}
+int main()
+{
 
-	//End of testing
-	SDL_DestroyRenderer(renderer);
-	SDL_RenderClear(renderer);
-	TTF_CloseFont(font);
-	SDL_Quit();
+	if (SDL_Init(SDL_INIT_VIDEO) < 0)
+	{
+		return -1;
+	}
+	//For TTF font
+	if (TTF_Init() < 0)
+	{
+		return 2;
+	}
+	SDL_Init(SDL_INIT_EVERYTHING);
+	//Open font
+	bool restart = false;
+	do
+	{
+		int renderValue = renderText();
+		if (renderValue != 0)
+		{
+			int t = runGameBoard(playerName);
+			if (t == 1)
+			{
+				restart = true;
+			}
+			else if (t == 0)
+			{
+
+				restart = false;
+			}
+		}
+		else
+		{
+			restart = true;
+		}
+		//Disable text input
+		//SDL_StopTextInput();
+		std::cout << restart;
+		//End of testing
+
+	} while (!restart);
 
 	return 0;
 }
