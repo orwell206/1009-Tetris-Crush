@@ -238,7 +238,7 @@ void GameBoardGraphics::draw_tetromino(SDL_Renderer *renderer, const TetrominoPi
 			if (value2)
 			{
 				s32 x = TEXT_HORZ_ALIGN;	   // Horizontal
-				s32 y = TEXT_VERT_ALIGN + 170; // Vertical
+				s32 y = TEXT_VERT_ALIGN + 260; // Vertical
 				draw_cell_preview(renderer, row, col, value2, x, y);
 			}
 		}

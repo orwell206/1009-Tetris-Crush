@@ -153,11 +153,11 @@ s32 GameBoard::find_lines(const u8 *values, s32 width, s32 height, u8 *lines_out
 
 void GameBoard::clear_lines(u8 *values, s32 width, s32 height, const u8 *lines)
 {
-    // Play sound effect
-    Mix_Chunk *clearSound = Mix_LoadWAV(PATH_SE_CLEAR);
-    SoundEffect SEclearSound;
-    SEclearSound.load(clearSound);
-    SEclearSound.play();
+	// Play sound effect
+	Mix_Chunk *clearSound = Mix_LoadWAV(PATH_SE_CLEAR);
+	SoundEffect SEclearSound;
+	SEclearSound.load(clearSound);
+	SEclearSound.play();
 
 	s32 src_row = height - 1;
 	for (s32 dst_row = height - 1; dst_row >= 0; dst_row--)
@@ -259,11 +259,11 @@ void GameBoard::spawn_tetromino(GameBoard *gameboard)
 
 void GameBoard::merge_tetrimino_on_board(GameBoard *gameboard)
 {
-    // Play sound effect
-    Mix_Chunk *fallTetris = Mix_LoadWAV(PATH_SE_FALL);
-    SoundEffect SEfallTetris;
-    SEfallTetris.load(fallTetris);
-    SEfallTetris.play();
+	// Play sound effect
+	Mix_Chunk *fallTetris = Mix_LoadWAV(PATH_SE_FALL);
+	SoundEffect SEfallTetris;
+	SEfallTetris.load(fallTetris);
+	SEfallTetris.play();
 
 	const Tetromino *tetromino = current_tetromino;
 
@@ -409,8 +409,12 @@ int GameBoard::game_Over(GameBoard *gameboard, SDL_Renderer *renderer, TTF_Font 
 			getline(ifile, line);
 
 			int fileScore = stoi(line);
-			std::string playerHistory = tempPlayer.playTest.playerName + ":" + std::to_string(fileScore);
-			str += "\n" + playerHistory;
+			if (currentIndex <= 10)
+			{
+				std::string playerHistory = tempPlayer.playTest.playerName + ":" + std::to_string(fileScore);
+				str += "\n" + playerHistory;
+			}
+
 			tempPlayer.playTest.playerScore = fileScore;
 
 			fileInputPlayer.push_back(tempPlayer);
