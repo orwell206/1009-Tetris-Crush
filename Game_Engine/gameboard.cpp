@@ -60,7 +60,7 @@ void GameBoard::set_player(Player &player) { this->player = &player; }
 
 void GameBoard::render_clearline_graphics(const GameBoard *gameboard, SDL_Renderer *renderer)
 {
-	Color highlight_color = color(0xFF, 0xFF, 0xFF, 0xFF);
+	Color highlight_color = Color(0xFF, 0xFF, 0xFF, 0xFF);
 	if (gameboard->gamePhase == GAME_PHASE_LINE)
 	{
 		for (s32 row = 0; row < HEIGHT; row++)
@@ -102,7 +102,7 @@ void GameBoard::render_game(const GameBoard *gameboard, SDL_Renderer *renderer, 
 	char buffer[4096];
 	s32 x = TEXT_HORZ_ALIGN;
 	s32 y = TEXT_VERT_ALIGN;
-	Color highlight_color = color(0xFF, 0xFF, 0xFF, 0xFF);
+	Color highlight_color = Color(0xFF, 0xFF, 0xFF, 0xFF);
 
 	draw_text(renderer, font, "POINTS:", x, y, TEXT_ALIGN_LEFT, highlight_color);
 
