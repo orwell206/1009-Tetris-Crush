@@ -15,8 +15,8 @@
 const u8 FRAMES_PER_DROP[] = {48, 43, 38, 33, 28, 23, 18, 13, 8, 6, 5, 5, 5, 4, 4, 4, 3, 3, 3, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 1};
 const f32 TARGET_SECONDS_PER_FRAME = 1.f / 60.f;
 
-
-class GameBoard: public GameBoardGraphics {
+class GameBoard : public GameBoardGraphics
+{
 private:
 	u8 gameboard[WIDTH * HEIGHT];
 	u8 lines[HEIGHT];
@@ -103,13 +103,15 @@ void GameBoard::render_game(const GameBoard *gameboard, SDL_Renderer *renderer, 
 	s32 x = TEXT_HORZ_ALIGN;
 	s32 y = TEXT_VERT_ALIGN;
 	Color highlight_color = Color(0xFF, 0xFF, 0xFF, 0xFF);
+	draw_text(renderer, font, "Player Name:", x, y, TEXT_ALIGN_LEFT, highlight_color);
+	draw_text(renderer, font, player->playTest.playerName.c_str(), x, y + 50, TEXT_ALIGN_LEFT, highlight_color);
 
-	draw_text(renderer, font, "POINTS:", x, y, TEXT_ALIGN_LEFT, highlight_color);
+	draw_text(renderer, font, "POINTS:", x, y + 100, TEXT_ALIGN_LEFT, highlight_color);
 
 	snprintf(buffer, sizeof(buffer), "%d", gameboard->points);
-	draw_text(renderer, font, buffer, x, (y + 50), TEXT_ALIGN_LEFT, highlight_color);
+	draw_text(renderer, font, buffer, x, (y + 150), TEXT_ALIGN_LEFT, highlight_color);
 
-	draw_text(renderer, font, "NEXT BLOCK:", x, (y + 120), TEXT_ALIGN_LEFT, highlight_color);
+	draw_text(renderer, font, "NEXT BLOCK:", x, (y + 210), TEXT_ALIGN_LEFT, highlight_color);
 }
 
 inline u8 GameBoard::check_if_row_filled(const u8 *values, s32 width, s32 row)
@@ -345,7 +347,8 @@ void GameBoard::update_gameplay(GameBoard *gameboard, const InputState *input)
 
 	if (input->get_dspace() > 1)
 	{
-		while (drop_tetromino(gameboard));
+		while (drop_tetromino(gameboard))
+			;
 	}
 
 	while (gameboard->time >= gameboard->nextDropTime)
@@ -375,6 +378,7 @@ int GameBoard::game_Over(GameBoard *gameboard, SDL_Renderer *renderer, TTF_Font 
 
 	int playerPoints = gameboard->points;
 	int indexToInsert, currentIndex = 0;
+	std::string str = "Continue or Exit?\nHighest Points: " + std::to_string(playerPoints) + "\nLeaderBoard: " + "\nName:Score";
 	/* try to open file to read */
 	std::ifstream ifile;
 	ifile.open("scoreboard.txt");
@@ -392,7 +396,8 @@ int GameBoard::game_Over(GameBoard *gameboard, SDL_Renderer *renderer, TTF_Font 
 			getline(ifile, line);
 
 			int fileScore = stoi(line);
-
+			std::string playerHistory = tempPlayer.playTest.playerName + ":" + std::to_string(fileScore);
+			str += "\n" + playerHistory;
 			tempPlayer.playTest.playerScore = fileScore;
 
 			fileInputPlayer.push_back(tempPlayer);
@@ -406,7 +411,7 @@ int GameBoard::game_Over(GameBoard *gameboard, SDL_Renderer *renderer, TTF_Font 
 
 		ifile.close();
 		//To be worked on
-		insertPlayer.playTest.playerName = "testingToBeAmend";
+		insertPlayer.playTest.playerName = player->playTest.playerName;
 		insertPlayer.playTest.playerScore = playerPoints;
 
 		auto tempPlayer = fileInputPlayer.begin();
@@ -426,7 +431,6 @@ int GameBoard::game_Over(GameBoard *gameboard, SDL_Renderer *renderer, TTF_Font 
 		std::cout << "file doesn't exist";
 	}
 
-	std::string str = "Continue or Exit?\n Highest Points: " + std::to_string(playerPoints);
 	const char *message = str.c_str();
 	const SDL_MessageBoxButtonData buttons[] = {
 		{/* .flags, .buttonid, .text */
