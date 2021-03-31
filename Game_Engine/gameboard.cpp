@@ -5,6 +5,7 @@
 #include "gameboard_graphics.cpp"
 #include "../Player_Engine/input_state.cpp"
 #include "../Player_Engine/player.cpp"
+#include "../Audio_Engine/sound_effect.cpp"
 #include <SDL2/SDL_ttf.h>
 #include <iostream>
 #include <string>
@@ -152,6 +153,12 @@ s32 GameBoard::find_lines(const u8 *values, s32 width, s32 height, u8 *lines_out
 
 void GameBoard::clear_lines(u8 *values, s32 width, s32 height, const u8 *lines)
 {
+    // Play sound effect
+    Mix_Chunk *clearSound = Mix_LoadWAV(PATH_SE_CLEAR);
+    SoundEffect SEclearSound;
+    SEclearSound.load(clearSound);
+    SEclearSound.play();
+
 	s32 src_row = height - 1;
 	for (s32 dst_row = height - 1; dst_row >= 0; dst_row--)
 	{
@@ -252,6 +259,12 @@ void GameBoard::spawn_tetromino(GameBoard *gameboard)
 
 void GameBoard::merge_tetrimino_on_board(GameBoard *gameboard)
 {
+    // Play sound effect
+    Mix_Chunk *fallTetris = Mix_LoadWAV(PATH_SE_FALL);
+    SoundEffect SEfallTetris;
+    SEfallTetris.load(fallTetris);
+    SEfallTetris.play();
+
 	const Tetromino *tetromino = current_tetromino;
 
 	for (s32 row = 0; row < tetromino->side; row++)

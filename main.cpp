@@ -34,14 +34,27 @@ int runGameBoard(string playerName)
 	{
 		return -1;
 	}
+    
 	//For TTF font
 	if (TTF_Init() < 0)
 	{
 		return 2;
 	}
+
+    if (SDL_Init(SDL_INIT_AUDIO) < 0)
+    {
+        return -1;
+    }    
+  
 	bool restart = false;
 	do
 	{
+        // Initialise SDL mixer
+        if(Mix_OpenAudio(44100,MIX_DEFAULT_FORMAT,2,2048)<0)
+        {
+            return -1;
+        }
+
 		// SDL_Window *window = SDL_CreateWindow("Tetris Crush Team 42", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, 780, 570, SDL_WINDOW_OPENGL | SDL_WINDOW_SHOWN);
 		SDL_Window *window = SDL_CreateWindow("Tetris Crush Team 42", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, 500, 570, SDL_WINDOW_OPENGL | SDL_WINDOW_SHOWN);
 		SDL_Renderer *renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC);
@@ -56,11 +69,21 @@ int runGameBoard(string playerName)
 		gameboard.spawn_tetromino(&gameboard);
 
 		bool quit = false;
-		//Open font
+
+		// Open font
 		const char *font_name = "novem___.ttf";
 		TTF_Font *font = TTF_OpenFont(font_name, 24);
+
+        // Play background music
+        Mix_Music *bgmusic = Mix_LoadMUS(PATH_BGM);
+        Audio bgm;
+        bgm.load(bgmusic);
+        bgm.play();
+        bgm.setStatus(true);
+
 		while (!quit)
 		{
+            
 			gameboard.set_GameBoardTime(SDL_GetTicks() / 1000.0f);
 
 			SDL_Event e;
@@ -97,13 +120,18 @@ int runGameBoard(string playerName)
 			int returnValue = gameboard.update_game(&gameboard, &input, renderer, font);
 			if (returnValue == 0)
 			{
+                // Stop playing background music
+                if (bgm.getStatus()){
+                    bgm.stop();
+                    bgm.setStatus(false);
+                }
 
 				quit = true;
 				restart = true;
+                
 			}
 			else if (returnValue == 1)
 			{
-
 				restart = false;
 				quit = true;
 			}
@@ -111,10 +139,15 @@ int runGameBoard(string playerName)
 
 			SDL_RenderPresent(renderer);
 		}
-		//Close font after game close
+
+		// Close font after game close
 		TTF_CloseFont(font);
 		SDL_DestroyRenderer(renderer);
 		SDL_RenderClear(renderer);
+        
+        // Close SDL mixer
+        Mix_CloseAudio();
+
 		SDL_Quit();
 	} while (!restart);
 	//Close font after game close
