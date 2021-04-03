@@ -3,20 +3,20 @@
 
 class TetrominoPieceState{
 	private:
-		u8 tetromino_index;
-		s32 offset_row;
-		s32 offset_col;
-		s32 rotation;
+		u8 tetromino_index;								// Tetromino index based on tetromino_generator.cpp
+		s32 offset_row;									// Coordinate offset for drawing on board
+		s32 offset_col;									// Coordinate offset for drawing on board
+		s32 rotation;									// Rotational state
 	public:
-		void resetState();
-		u8 get_tetromino_index() const;
-		void set_tetromino_index(u8 tetromino_index);
-		s32 get_offset_row() const;
-		void set_offset_row(s32 offset_row);
-		s32 get_offset_col() const;
-		void set_offset_col(s32 offset_row);
-		s32 get_rotation() const;
-		void set_rotation(s32 offset_row);
+		void resetState();								// Resets values of TetrominoState for new block
+		u8 get_tetromino_index() const;					// Get index
+		void set_tetromino_index(u8 tetromino_index);	// Set Index
+		s32 get_offset_row() const;						// Get coordinate row offset
+		void set_offset_row(s32 offset_row);			// Set coordinate row offset
+		s32 get_offset_col() const;						// Get coordinate col offset
+		void set_offset_col(s32 offset_row);			// Set coordinate col offset
+		s32 get_rotation() const;						// Get rotational state
+		void set_rotation(s32 offset_row);				// Set rotational state
 };
 
 void TetrominoPieceState::resetState() {
