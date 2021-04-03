@@ -430,15 +430,26 @@ int GameBoard::game_Over(GameBoard *gameboard, SDL_Renderer *renderer, TTF_Font 
 			tempPlayer.playerInfo.playerScore = fileScore;
 
 			fileInputPlayer.push_back(tempPlayer);
-			if (playerPoints <= fileScore)
-			{
-				indexToInsert = currentIndex;
-			}
+			// if (playerPoints >= fileScore)
+			// {
+			// 	indexToInsert = currentIndex;
+			// }
 
 			currentIndex += 1;
 		}
 
 		ifile.close();
+		int index = 0;
+		for (auto i = fileInputPlayer.begin(); i != fileInputPlayer.end(); i++)
+		{
+
+			if (playerPoints >= i->playerInfo.playerScore)
+			{
+				indexToInsert = index;
+				break;
+			}
+			index++;
+		}
 		//To be worked on
 		insertPlayer.playerInfo.playerName = player->playerInfo.playerName;
 		insertPlayer.playerInfo.playerScore = playerPoints;
@@ -446,6 +457,7 @@ int GameBoard::game_Over(GameBoard *gameboard, SDL_Renderer *renderer, TTF_Font 
 		{
 			str += "\n" + player->playerInfo.playerName + ":" + std::to_string(playerPoints);
 		}
+		std::cout << indexToInsert;
 		auto tempPlayer = fileInputPlayer.begin();
 		advance(tempPlayer, indexToInsert);
 		fileInputPlayer.insert(tempPlayer, insertPlayer);
