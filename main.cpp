@@ -54,6 +54,7 @@ int runGameBoard(string playerName)
 	Player player;
 	//Set playerName
 	player.playerInfo.playerName = playerName;
+	player.playerInfo.playerScore = 0;
 	//Init Gameboard class
 	GameBoard gameboard{};
 	//Set gameboard with player

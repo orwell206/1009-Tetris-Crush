@@ -109,7 +109,7 @@ void GameBoard::render_game(const GameBoard *gameboard, SDL_Renderer *renderer, 
 
 	draw_text(renderer, font, "POINTS:", x, y + 100, TEXT_ALIGN_LEFT, highlight_color);
 
-	snprintf(buffer, sizeof(buffer), "%d", gameboard->points);
+	snprintf(buffer, sizeof(buffer), "%d", player->playerInfo.playerScore);
 	draw_text(renderer, font, buffer, x, (y + 150), TEXT_ALIGN_LEFT, highlight_color);
 
 	draw_text(renderer, font, "NEXT BLOCK:", x, (y + 210), TEXT_ALIGN_LEFT, highlight_color);
@@ -317,10 +317,13 @@ void GameBoard::update_gameline(GameBoard *gameboard)
 	{
 		clear_lines(gameboard->gameboard, WIDTH, HEIGHT, gameboard->lines);
 		gameboard->line_count += gameboard->pending_line_count;
-		//For debugging
-		std::cout << gameboard->pending_line_count;
+		int pendingLineCount = gameboard->pending_line_count;
 		//Temp adding of score
-		gameboard->points += 20 * gameboard->pending_line_count;
+		player->playerInfo.playerScore = player->awardPoints(player->playerInfo.playerScore, pendingLineCount);
+		//GameBoard temp = &gameboard;
+		//gameboard->points = gameboard->points + gameboard->points;
+		//gameboard = &gameboard + gameboard;
+		//gameboard->points += 20 * gameboard->pending_line_count;
 		gameboard->gamePhase = GAME_PHASE_PLAY;
 	}
 }
@@ -388,8 +391,8 @@ void GameBoard::update_gameplay(GameBoard *gameboard, const InputState *input)
 
 int GameBoard::game_Over(GameBoard *gameboard, SDL_Renderer *renderer, TTF_Font *font)
 {
-
-	int playerPoints = gameboard->points;
+	int playerPoints = player->playerInfo.playerScore;
+	//int playerPoints = gameboard->points;
 	int indexToInsert, currentIndex = 0;
 	std::string str = "Continue or Exit?\nHighest Points: " + std::to_string(playerPoints) + "\nLeaderBoard: " + "\nName:Score";
 	/* try to open file to read */
@@ -427,11 +430,11 @@ int GameBoard::game_Over(GameBoard *gameboard, SDL_Renderer *renderer, TTF_Font 
 			tempPlayer.playerInfo.playerScore = fileScore;
 
 			fileInputPlayer.push_back(tempPlayer);
-
 			if (playerPoints <= fileScore)
 			{
 				indexToInsert = currentIndex;
 			}
+
 			currentIndex += 1;
 		}
 
