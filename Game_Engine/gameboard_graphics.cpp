@@ -40,12 +40,12 @@ private:
 	const Color BASE_COLORS[8] = {
 		Color(0x28, 0x28, 0x28, 0xFF),	// Background/line color
 		Color(0x2D, 0x99, 0x99, 0xFF),	// I shape
-		Color(0x99, 0x99, 0x2D, 0xFF), 	// T Shape
+		Color(0x99, 0x99, 0x2D, 0xFF),	// T Shape
 		Color(0x99, 0x2D, 0x99, 0xFF),	// L Shape
 		Color(0x2D, 0x99, 0x51, 0xFF),	// J Shape
 		Color(0x99, 0x2D, 0x2D, 0xFF),	// S Shape
 		Color(0x2D, 0x63, 0x99, 0xFF),	// Z Shape
-		Color(0x99, 0x63, 0x2D, 0xFF)};	// Square Shape
+		Color(0x99, 0x63, 0x2D, 0xFF)}; // Square Shape
 
 	const Color LIGHT_COLORS[8] = {
 		Color(0x28, 0x28, 0x28, 0xFF),	// Background/line color
@@ -55,46 +55,46 @@ private:
 		Color(0x44, 0xE5, 0x7A, 0xFF),	// J Shape
 		Color(0xE5, 0x44, 0x44, 0xFF),	// S Shape
 		Color(0x44, 0x95, 0xE5, 0xFF),	// Z Shape
-		Color(0xE5, 0x95, 0x44, 0xFF)};	// Square Shape
+		Color(0xE5, 0x95, 0x44, 0xFF)}; // Square Shape
 
 public:
 	GameBoardGraphics();
 	inline u8 get_matrix(const u8 *, s32, s32, s32);
 	inline void set_matrix(u8 *, s32, s32, s32, u8);
 	inline u8 get_tetromino(const Tetromino *, s32, s32, s32);
-	int random_tetromino_index(s32, s32);													// Randomizes a tetromino from list
+	int random_tetromino_index(s32, s32); // Randomizes a tetromino from list
 	void draw_text(SDL_Renderer *, TTF_Font *, const char *, s32, s32, Text_Align, Color);
-	void draw_on_board(SDL_Renderer *, const u8 *, s32, s32, s32, s32);						// Draws rendered content onto gameboard
-	void draw_tetromino(SDL_Renderer *, const TetrominoPieceState *, s32, s32, bool);		// Renders tetromino as it moves down
-	void draw_cell_board(SDL_Renderer *, s32, s32, u8, s32, s32, bool);						// Renders tetromino for the gameboard
-	void draw_cell_preview(SDL_Renderer *, s32, s32, u8, s32, s32);							// Renders tetromino for the preview pane
-	void draw_rect(SDL_Renderer *, s32, s32, s32, s32, Color);								// Draws outline(shape) of tetromino
-	void fill_rect(SDL_Renderer *, s32, s32, s32, s32, Color);								// Fills tetromino with color
+	void draw_on_board(SDL_Renderer *, const u8 *, s32, s32, s32, s32);				  // Draws rendered content onto gameboard
+	void draw_tetromino(SDL_Renderer *, const TetrominoPieceState *, s32, s32, bool); // Renders tetromino as it moves down
+	void draw_cell_board(SDL_Renderer *, s32, s32, u8, s32, s32, bool);				  // Renders tetromino for the gameboard
+	void draw_cell_preview(SDL_Renderer *, s32, s32, u8, s32, s32);					  // Renders tetromino for the preview pane
+	void draw_rect(SDL_Renderer *, s32, s32, s32, s32, Color);						  // Draws outline(shape) of tetromino
+	void fill_rect(SDL_Renderer *, s32, s32, s32, s32, Color);						  // Fills tetromino with color
 	bool loadFromRenderedText(SDL_Renderer *, TTF_Font *, const char *, SDL_Color);
 	void renderText(SDL_Renderer *, s32, s32);
 };
-GameBoardGraphics::GameBoardGraphics(){}
+GameBoardGraphics::GameBoardGraphics() {}
 
 bool GameBoardGraphics::loadFromRenderedText(SDL_Renderer *gRenderer, TTF_Font *gFont, const char *textureText, SDL_Color textColor)
 {
 	//Render text surface
-
 	SDL_Surface *textSurface = TTF_RenderText_Solid(gFont, textureText, textColor);
-	std::cout << "debug";
+
+	//Check if text surface is empty
 	if (textSurface == NULL)
 	{
-		printf("Unable to render text surface! SDL_ttf Error: %s\n", TTF_GetError());
+		printf("Unable to render text surface! SDL_ttf Empty: %s\n", TTF_GetError());
 		return false;
 	}
-	std::cout << "debug2";
 	//Create texture from surface pixels
 	font_texture = SDL_CreateTextureFromSurface(gRenderer, textSurface);
+	//Check if font surface is empty
 	if (font_texture == NULL)
 	{
-		printf("Unable to create texture from rendered text! SDL Error: %s\n", SDL_GetError());
+		printf("Unable to create texture from rendered text! SDL Empty: %s\n", SDL_GetError());
 		return false;
 	}
-	std::cout << "debug3";
+
 	//Get image dimensions
 	mWidth = textSurface->w;
 	mHeight = textSurface->h;
@@ -107,7 +107,7 @@ bool GameBoardGraphics::loadFromRenderedText(SDL_Renderer *gRenderer, TTF_Font *
 }
 void GameBoardGraphics::renderText(SDL_Renderer *gRenderer, s32 x, s32 y)
 {
-	// C lacks default params, lazy workaround
+	//Set default params
 	SDL_Rect *clip = NULL;
 	double angle = 0.0;
 	SDL_Point *center = NULL;
