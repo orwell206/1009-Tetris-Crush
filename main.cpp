@@ -30,17 +30,7 @@ int runGameBoard(string playerName)
 	// Seed random
 	srand(time(NULL));
 
-	if (SDL_Init(SDL_INIT_VIDEO) < 0)
-	{
-		return -1;
-	}
-
-	//For TTF font
-	if (TTF_Init() < 0)
-	{
-		return 2;
-	}
-
+	//Init Audio
 	if (SDL_Init(SDL_INIT_AUDIO) < 0)
 	{
 		return -1;
@@ -55,25 +45,31 @@ int runGameBoard(string playerName)
 	bgm.load(bgmusic);
 	bgm.play();
 	bgm.setStatus(true);
+
 	// SDL_Window *window = SDL_CreateWindow("Tetris Crush Team 42", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, 780, 570, SDL_WINDOW_OPENGL | SDL_WINDOW_SHOWN);
 	SDL_Window *window = SDL_CreateWindow("Tetris Crush Team 42", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, 500, 570, SDL_WINDOW_OPENGL | SDL_WINDOW_SHOWN);
 	SDL_Renderer *renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC);
 
+	//Create player
 	Player player;
-	player.playTest.playerName = playerName;
+	//Set playerName
+	player.playerInfo.playerName = playerName;
+	//Init Gameboard class
 	GameBoard gameboard{};
+	//Set gameboard with player
 	gameboard.set_player(player);
 
 	InputState input = {};
-
+	//Spawn tetromino
 	gameboard.spawn_tetromino(&gameboard);
 
+	//Init declaration of quit
 	bool quit = false;
 
 	// Open font
 	const char *font_name = "novem___.ttf";
 	TTF_Font *font = TTF_OpenFont(font_name, 24);
-
+	//Keep looping if condition is true
 	while (!quit)
 	{
 
@@ -82,19 +78,19 @@ int runGameBoard(string playerName)
 		SDL_Event e;
 		while (SDL_PollEvent(&e) != 0)
 		{
-
+			//Capture force close of game window
 			if (e.type == SDL_QUIT)
 			{
 				quit = true;
-				// Close font after game close
+				// Close font and render after game close
 				TTF_CloseFont(font);
 				SDL_DestroyRenderer(renderer);
 				SDL_RenderClear(renderer);
 				// Close SDL mixer
 				Mix_CloseAudio();
 				SDL_Quit();
+				//return to main method
 				return 1;
-				//restart = true;
 			}
 		}
 
@@ -129,28 +125,27 @@ int runGameBoard(string playerName)
 			}
 
 			quit = true;
-			// Close font after game close
+			// Close font and render after game close
 			TTF_CloseFont(font);
 			SDL_DestroyRenderer(renderer);
 			SDL_RenderClear(renderer);
 			// Close SDL mixer
 			Mix_CloseAudio();
 			SDL_Quit();
+			//return to main method
 			return 1;
-			//	restart = true;
 		}
 		else if (returnValue == 1)
 		{
-			// Close font after game close
+			// Close font and render after game close
 			TTF_CloseFont(font);
 			SDL_DestroyRenderer(renderer);
 			SDL_RenderClear(renderer);
-
 			// Close SDL mixer
 			Mix_CloseAudio();
 			SDL_Quit();
+			//return to main method
 			return 0;
-			//restart = false;
 			quit = true;
 		}
 		gameboard.render_game(&gameboard, renderer, font);
@@ -170,8 +165,7 @@ int renderText()
 	Color highlight_color = Color(0xFF, 0xFF, 0xFF, 0xFF);
 	GameBoardGraphics graph{};
 	bool quit = false;
-	SDL_Event event;
-	//Testign TextBox
+
 	//Event handler
 	SDL_Event e;
 
@@ -191,7 +185,6 @@ int renderText()
 	{
 		//The rerender text flag
 		bool renderText = false;
-		//SDL_WaitEvent(&event);
 
 		//Handle events on queue
 		while (SDL_PollEvent(&e) != 0)
@@ -199,6 +192,7 @@ int renderText()
 
 			if (e.type == SDL_QUIT)
 			{
+				//close render and return to main method
 				quit = true;
 				SDL_StopTextInput();
 				SDL_DestroyRenderer(renderer);
@@ -209,9 +203,10 @@ int renderText()
 			}
 			if (key_states2[SDL_SCANCODE_RETURN])
 			{
-
+				//when input text not none
 				if (inputText != "")
 				{
+					//close render and return to main method
 					playerName = inputText;
 					SDL_StopTextInput();
 					SDL_DestroyRenderer(renderer);
@@ -270,11 +265,10 @@ int renderText()
 				graph.loadFromRenderedText(renderer, font, " ", textColor);
 			}
 		} //Clear screen
-		//Clear screen
 		SDL_SetRenderDrawColor(renderer, 0, 0, 0, 0);
 		SDL_RenderClear(renderer);
+
 		//Render text textures
-		//graph.renderText(renderer, x, y * 2.5);
 		graph.draw_text(renderer, font, "TETRIS CRUSH", x, y, TEXT_ALIGN_CENTER, highlight_color);
 		graph.draw_text(renderer, font, "Enter Player Name", x, y * 2.5 - 70, TEXT_ALIGN_CENTER, highlight_color);
 		graph.draw_text(renderer, font, "before you start game", x, y * 2.5 - 40, TEXT_ALIGN_CENTER, highlight_color);
@@ -289,7 +283,7 @@ int renderText()
 }
 int main()
 {
-
+	//Init
 	if (SDL_Init(SDL_INIT_VIDEO) < 0)
 	{
 		return -1;
@@ -299,20 +293,21 @@ int main()
 	{
 		return 2;
 	}
-	SDL_Init(SDL_INIT_EVERYTHING);
-	//Open font
+
 	bool restart = false;
 	do
 	{
+		//Render text on SDL and get return value
 		int renderValue = renderText();
 		if (renderValue != 0)
 		{
-			int t = runGameBoard(playerName);
-			if (t == 1)
+			//Run gameboard and get return value when application close/user selected restart/exit
+			int returnValueFromGameBoard = runGameBoard(playerName);
+			if (returnValueFromGameBoard == 1)
 			{
 				restart = true;
 			}
-			else if (t == 0)
+			else if (returnValueFromGameBoard == 0)
 			{
 
 				restart = false;
@@ -322,10 +317,6 @@ int main()
 		{
 			restart = true;
 		}
-		//Disable text input
-		//SDL_StopTextInput();
-		std::cout << restart;
-		//End of testing
 
 	} while (!restart);
 
