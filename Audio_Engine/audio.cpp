@@ -9,7 +9,7 @@ class Audio {
 protected: 
     Mix_Music *audioMusic;
     Mix_Chunk *audioChunk;
-    bool runningStatus = false;
+    bool runningStatus = false;  // Encapsulation - get/set the audio status
     int volume = 50;
 public:
     void load(Mix_Music*);       // Overloading - to load different types of audio
@@ -20,12 +20,12 @@ public:
     bool getStatus();
 };
 
-void Audio::load(Mix_Music *audio) {
+void Audio::load(Mix_Music *audio) {    // Load background music
     audioMusic = audio;
     Mix_VolumeMusic(volume);    // Set the volume with default value
 }
 
-void Audio::load(Mix_Chunk *audio) {
+void Audio::load(Mix_Chunk *audio) {    // Load sound effect
     audioChunk = audio;
 }
 
