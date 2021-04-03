@@ -393,10 +393,19 @@ int GameBoard::game_Over(GameBoard *gameboard, SDL_Renderer *renderer, TTF_Font 
 	int indexToInsert, currentIndex = 0;
 	std::string str = "Continue or Exit?\nHighest Points: " + std::to_string(playerPoints) + "\nLeaderBoard: " + "\nName:Score";
 	/* try to open file to read */
-	std::ifstream ifile;
-	ifile.open("scoreboard.txt");
-	if (ifile)
+	try
 	{
+		std::ifstream ifile;
+		ifile.open("scoreboard.txt");
+		if (!ifile)
+		{
+			//Need to be worked on
+			std::cout << "file doesn't exist";
+			FILE *file;
+			file = fopen("scoreboard.txt", "r+b");
+			ifile.open("scoreboard.txt");
+			fclose(file);
+		}
 		std::string line;
 		std::list<Player> fileInputPlayer;
 		Player insertPlayer;
@@ -430,7 +439,10 @@ int GameBoard::game_Over(GameBoard *gameboard, SDL_Renderer *renderer, TTF_Font 
 		//To be worked on
 		insertPlayer.playTest.playerName = player->playTest.playerName;
 		insertPlayer.playTest.playerScore = playerPoints;
-
+		if (currentIndex == 0)
+		{
+			str += "\n" + player->playTest.playerName + ":" + std::to_string(playerPoints);
+		}
 		auto tempPlayer = fileInputPlayer.begin();
 		advance(tempPlayer, indexToInsert);
 		fileInputPlayer.insert(tempPlayer, insertPlayer);
@@ -442,10 +454,9 @@ int GameBoard::game_Over(GameBoard *gameboard, SDL_Renderer *renderer, TTF_Font 
 		}
 		ofs.close();
 	}
-	else
+	catch (exception ex)
 	{
-		//Need to be worked on
-		std::cout << "file doesn't exist";
+		cout << "Something went wrong while opening the file. ";
 	}
 
 	const char *message = str.c_str();
