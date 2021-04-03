@@ -11,5 +11,5 @@ public:
 		int playerScore;
 		string playerName;
 	};
-	PlayerInfo playTest;
+	PlayerInfo playerInfo;
 };

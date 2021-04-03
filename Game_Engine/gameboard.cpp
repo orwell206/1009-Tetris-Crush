@@ -105,7 +105,7 @@ void GameBoard::render_game(const GameBoard *gameboard, SDL_Renderer *renderer, 
 	s32 y = TEXT_VERT_ALIGN;
 	Color highlight_color = Color(0xFF, 0xFF, 0xFF, 0xFF);
 	draw_text(renderer, font, "Player Name:", x, y, TEXT_ALIGN_LEFT, highlight_color);
-	draw_text(renderer, font, player->playTest.playerName.c_str(), x, y + 50, TEXT_ALIGN_LEFT, highlight_color);
+	draw_text(renderer, font, player->playerInfo.playerName.c_str(), x, y + 50, TEXT_ALIGN_LEFT, highlight_color);
 
 	draw_text(renderer, font, "POINTS:", x, y + 100, TEXT_ALIGN_LEFT, highlight_color);
 
@@ -413,18 +413,18 @@ int GameBoard::game_Over(GameBoard *gameboard, SDL_Renderer *renderer, TTF_Font 
 		while (getline(ifile, line, ','))
 		{
 			Player tempPlayer;
-			tempPlayer.playTest.playerName = line;
+			tempPlayer.playerInfo.playerName = line;
 
 			getline(ifile, line);
 
 			int fileScore = stoi(line);
 			if (currentIndex <= 10)
 			{
-				std::string playerHistory = tempPlayer.playTest.playerName + ":" + std::to_string(fileScore);
+				std::string playerHistory = tempPlayer.playerInfo.playerName + ":" + std::to_string(fileScore);
 				str += "\n" + playerHistory;
 			}
 
-			tempPlayer.playTest.playerScore = fileScore;
+			tempPlayer.playerInfo.playerScore = fileScore;
 
 			fileInputPlayer.push_back(tempPlayer);
 
@@ -437,11 +437,11 @@ int GameBoard::game_Over(GameBoard *gameboard, SDL_Renderer *renderer, TTF_Font 
 
 		ifile.close();
 		//To be worked on
-		insertPlayer.playTest.playerName = player->playTest.playerName;
-		insertPlayer.playTest.playerScore = playerPoints;
+		insertPlayer.playerInfo.playerName = player->playerInfo.playerName;
+		insertPlayer.playerInfo.playerScore = playerPoints;
 		if (currentIndex == 0)
 		{
-			str += "\n" + player->playTest.playerName + ":" + std::to_string(playerPoints);
+			str += "\n" + player->playerInfo.playerName + ":" + std::to_string(playerPoints);
 		}
 		auto tempPlayer = fileInputPlayer.begin();
 		advance(tempPlayer, indexToInsert);
@@ -450,7 +450,7 @@ int GameBoard::game_Over(GameBoard *gameboard, SDL_Renderer *renderer, TTF_Font 
 		std::ofstream ofs("scoreboard.txt", std::ofstream::trunc);
 		for (auto it = fileInputPlayer.begin(); it != fileInputPlayer.end(); it++)
 		{
-			ofs << it->playTest.playerName << "," << it->playTest.playerScore << "\n";
+			ofs << it->playerInfo.playerName << "," << it->playerInfo.playerScore << "\n";
 		}
 		ofs.close();
 	}
