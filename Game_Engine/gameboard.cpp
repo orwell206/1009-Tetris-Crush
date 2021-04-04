@@ -319,11 +319,7 @@ void GameBoard::update_gameline(GameBoard *gameboard)
 		gameboard->line_count += gameboard->pending_line_count;
 		int pendingLineCount = gameboard->pending_line_count;
 		//Temp adding of score
-		player->playerInfo.playerScore = player->awardPoints(player->playerInfo.playerScore, pendingLineCount);
-		//GameBoard temp = &gameboard;
-		//gameboard->points = gameboard->points + gameboard->points;
-		//gameboard = &gameboard + gameboard;
-		//gameboard->points += 20 * gameboard->pending_line_count;
+		player->playerInfo.playerScore = player->awardPoints(player, pendingLineCount);
 		gameboard->gamePhase = GAME_PHASE_PLAY;
 	}
 }
