@@ -14,7 +14,7 @@ public:
 	};
 	PlayerInfo playerInfo;
 	int awardPoints(Player *, int);
-	Player operator+(Player *);
+	Player operator+(int);
 };
 Player::Player()
 {
@@ -27,14 +27,12 @@ int Player::awardPoints(Player *player, int lines)
 
 		Params: Player (*player), int (lines)
 	*/
-	//Temp Player
-	Player tempPlayer;
 	//Calculate score for player when cleared line
 	player->playerInfo.playerScore = player->playerInfo.playerScore + (20 * lines);
 	//Using the overloaded operator, sum both player class and return playscore.
-	return (tempPlayer + player).playerInfo.playerScore;
+	return player->playerInfo.playerScore;
 }
-Player Player::operator+(Player *userPlayer)
+Player Player::operator+(int inputScore)
 {
 	/*
 		Desc: Overloading operator + for adding player score.
@@ -44,7 +42,7 @@ Player Player::operator+(Player *userPlayer)
 	//Temp Player
 	Player temp;
 	//Sum player score
-	temp.playerInfo.playerScore = this->playerInfo.playerScore + userPlayer->playerInfo.playerScore;
+	temp.playerInfo.playerScore = this->playerInfo.playerScore + inputScore;
 	//Return Temp
 	return temp;
 }
