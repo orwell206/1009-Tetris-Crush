@@ -10,15 +10,20 @@
 #define TEXT_HORZ_ALIGN (WIDTH * GRID_SIZE + 30)
 #define TEXT_VERT_ALIGN HEIGHT
 SDL_Texture *font_texture = NULL;
+
 //Image dimensions
 int mWidth = 0;
 int mHeight = 0;
+
+// The phases of the game 
 enum Game_Phase
 {
 	GAME_PHASE_PLAY,
 	GAME_PHASE_LINE,
 	GAME_PHASE_GAMEOVER,
 };
+
+// Text alignmnet positions 
 enum Text_Align
 {
 	TEXT_ALIGN_LEFT,
@@ -29,6 +34,7 @@ enum Text_Align
 class GameBoardGraphics
 {
 protected:
+	// Gameboard graphics variables 
 	TetrominoPieceState tetrominoPiece;
 	TetrominoGenerator tetrominoStruct;
 	u8 next_tetromino_index = (u8)random_tetromino_index(0, tetrominoStruct.get_TetrominoShapeCount());
@@ -58,25 +64,29 @@ private:
 		Color(0xE5, 0x95, 0x44, 0xFF)}; // Square Shape
 
 public:
-	GameBoardGraphics();
 	inline u8 get_matrix(const u8 *, s32, s32, s32);
 	inline void set_matrix(u8 *, s32, s32, s32, u8);
 	inline u8 get_tetromino(const Tetromino *, s32, s32, s32);
-	int random_tetromino_index(s32, s32); // Randomizes a tetromino from list
+	int random_tetromino_index(s32, s32); 											  
 	void draw_text(SDL_Renderer *, TTF_Font *, const char *, s32, s32, Text_Align, Color);
-	void draw_on_board(SDL_Renderer *, const u8 *, s32, s32, s32, s32);				  // Draws rendered content onto gameboard
-	void draw_tetromino(SDL_Renderer *, const TetrominoPieceState *, s32, s32, bool); // Renders tetromino as it moves down
-	void draw_cell_board(SDL_Renderer *, s32, s32, u8, s32, s32, bool);				  // Renders tetromino for the gameboard
-	void draw_cell_preview(SDL_Renderer *, s32, s32, u8, s32, s32);					  // Renders tetromino for the preview pane
-	void draw_rect(SDL_Renderer *, s32, s32, s32, s32, Color);						  // Draws outline(shape) of tetromino
-	void fill_rect(SDL_Renderer *, s32, s32, s32, s32, Color);						  // Fills tetromino with color
+	void draw_on_board(SDL_Renderer *, const u8 *, s32, s32, s32, s32);				  
+	void draw_tetromino(SDL_Renderer *, const TetrominoPieceState *, s32, s32, bool); 
+	void draw_cell_board(SDL_Renderer *, s32, s32, u8, s32, s32, bool);				  
+	void draw_cell_preview(SDL_Renderer *, s32, s32, u8, s32, s32);					 
+	void draw_rect(SDL_Renderer *, s32, s32, s32, s32, Color);						  
+	void fill_rect(SDL_Renderer *, s32, s32, s32, s32, Color);						
 	bool loadFromRenderedText(SDL_Renderer *, TTF_Font *, const char *, SDL_Color);
 	void renderText(SDL_Renderer *, s32, s32);
 };
-GameBoardGraphics::GameBoardGraphics() {}
+
 
 bool GameBoardGraphics::loadFromRenderedText(SDL_Renderer *gRenderer, TTF_Font *gFont, const char *textureText, SDL_Color textColor)
 {
+	/*
+		Desc: <FILL THIS UP>
+		
+		Params: SDL_Renderer (*gRenderer), TTF_Font (*gFont), const char (*textureText), SDL_Color (textColor)
+	*/
 	//Render text surface
 	SDL_Surface *textSurface = TTF_RenderText_Solid(gFont, textureText, textColor);
 
@@ -86,8 +96,10 @@ bool GameBoardGraphics::loadFromRenderedText(SDL_Renderer *gRenderer, TTF_Font *
 		printf("Unable to render text surface! SDL_ttf Empty: %s\n", TTF_GetError());
 		return false;
 	}
+
 	//Create texture from surface pixels
 	font_texture = SDL_CreateTextureFromSurface(gRenderer, textSurface);
+
 	//Check if font surface is empty
 	if (font_texture == NULL)
 	{
@@ -105,8 +117,15 @@ bool GameBoardGraphics::loadFromRenderedText(SDL_Renderer *gRenderer, TTF_Font *
 	//Return success
 	return true;
 }
+
+
 void GameBoardGraphics::renderText(SDL_Renderer *gRenderer, s32 x, s32 y)
 {
+	/*
+		Desc: Draws text onto the gameboard. 
+		
+		Params: SDL_Renderer (*gRenderer), s32 (x), s32 (y)
+	*/
 	//Set default params
 	SDL_Rect *clip = NULL;
 	double angle = 0.0;
@@ -126,20 +145,37 @@ void GameBoardGraphics::renderText(SDL_Renderer *gRenderer, s32 x, s32 y)
 	//Render to screen
 	SDL_RenderCopyEx(gRenderer, font_texture, clip, &renderQuad, angle, center, flip);
 }
+
+
 inline u8 GameBoardGraphics::get_matrix(const u8 *values, s32 width, s32 row, s32 col)
 {
+	/*
+		Desc: Gets the matrix of a tetromino.
+		
+		Params: const u8 (*values), s32 (width), s32 (row), s32 (col)
+	*/
 	s32 index = row * width + col;
 	return values[index];
 }
 
 inline void GameBoardGraphics::set_matrix(u8 *values, s32 width, s32 row, s32 col, u8 value)
 {
+	/*
+		Desc: Sets the matrix of a tetromino.
+		
+		Params: u8 (*values), s32 (width), s32 (row), s32 (col), u8 (value)
+	*/
 	s32 index = (row * width + col);
 	values[index] = value;
 }
 
 inline u8 GameBoardGraphics::get_tetromino(const Tetromino *tetromino, s32 row, s32 col, s32 rotation)
 {
+	/*
+		Desc: Gets a tetromino object as well as its coordinates. 
+		
+		Params: u8 const Tetromino (*tetromino), s32 (row), s32 (col), s32 (rotation)
+	*/
 	s32 side = tetromino->side;
 	switch (rotation)
 	{
@@ -157,13 +193,22 @@ inline u8 GameBoardGraphics::get_tetromino(const Tetromino *tetromino, s32 row, 
 
 int GameBoardGraphics::random_tetromino_index(s32 min, s32 max)
 {
+	/*
+		Desc: Generates a random index which is inturn used as an index to get a random tetromino. 
+		
+		Params: s32 (min), s32 (max)
+	*/
 	s32 range = max - min;
 	return min + rand() % range;
 }
 
 void GameBoardGraphics::draw_text(SDL_Renderer *renderer, TTF_Font *font, const char *text, s32 x, s32 y, Text_Align alignment, Color color)
 {
-
+	/*
+		Desc: <FILL THIS UP>
+		
+		Params: SDL_Renderer (*renderer), TTF_Font (*font), const char (*text), s32 (x), s32 (y), Text_Align (alignment), Color (color)
+	*/
 	SDL_Color sdl_color = {color.get_r(), color.get_g(), color.get_b(), color.get_a()};
 	SDL_Surface *surface = TTF_RenderText_Solid(font, text, sdl_color);
 	SDL_Texture *texture = SDL_CreateTextureFromSurface(renderer, surface);
@@ -196,6 +241,11 @@ void GameBoardGraphics::draw_text(SDL_Renderer *renderer, TTF_Font *font, const 
 
 void GameBoardGraphics::draw_on_board(SDL_Renderer *renderer, const u8 *gameboard, s32 width, s32 height, s32 offset_x, s32 offset_y)
 {
+	/*
+		Desc: Draws onto the gameboard. 
+		
+		Params: SDL_Renderer (*renderer), const u8 (*gameboard), s32 (width), s32 (height), s32 (offset_x), s32 (offset_y)
+	*/
 	for (s32 row = 0; row < height; row++)
 	{
 		for (s32 col = 0; col < width; col++)
@@ -207,9 +257,11 @@ void GameBoardGraphics::draw_on_board(SDL_Renderer *renderer, const u8 *gameboar
 }
 
 void GameBoardGraphics::draw_tetromino(SDL_Renderer *renderer, const TetrominoPieceState *tetrominoPiece, s32 offset_x, s32 offset_y, bool outline = false)
-/*
-* Main "moving" tetromino render function
-*/
+	/*
+		Desc: Draws the tetromino onto the gameboard.
+		
+		Params: SDL_Renderer (*renderer), const TetrominoPieceState (*tetrominoPiece), s32 (offset_x), s32 (offset_y), bool (outline = false)
+	*/
 {
 	const Tetromino *current_tetro = current_tetromino;
 	const Tetromino *next_tetro = next_tetromino;
@@ -244,9 +296,11 @@ void GameBoardGraphics::draw_tetromino(SDL_Renderer *renderer, const TetrominoPi
 }
 
 void GameBoardGraphics::draw_cell_board(SDL_Renderer *renderer, s32 row, s32 col, u8 value, s32 offset_x, s32 offset_y, bool outline = false)
-/*
-* Main logic gameboard and tetromino colors
-*/
+	/*
+		Desc: Draws the individual cells of the gameboard.
+		
+		Params: SDL_Renderer (*renderer), s32 (row), s32 (col), u8 (value), s32 (offset_x), s32 (offset_y), bool (outline = false)
+	*/
 {
 	Color base_color = BASE_COLORS[value];
 	Color light_color = LIGHT_COLORS[value];
@@ -260,31 +314,39 @@ void GameBoardGraphics::draw_cell_board(SDL_Renderer *renderer, s32 row, s32 col
 		draw_rect(renderer, x, y, GRID_SIZE, GRID_SIZE, base_color);
 		return;
 	}
-	// fill_rect(renderer, x, y, GRID_SIZE, GRID_SIZE, dark_color); // Disabled to have "grid" effect
 	fill_rect(renderer, x + edge, y, GRID_SIZE - edge, GRID_SIZE - edge, light_color);
 	fill_rect(renderer, x + edge, y + edge, GRID_SIZE - edge * 2, GRID_SIZE - edge * 2, base_color);
 }
 
 void GameBoardGraphics::draw_cell_preview(SDL_Renderer *renderer, s32 row, s32 col, u8 value, s32 offset_x, s32 offset_y)
-/*
-* Main logic gameboard and tetromino colors
-*/
+	/*
+		Desc: Draws the next tetrmino preview. 
+		
+		Params: SDL_Renderer (*renderer), s32 (row), s32 (col), u8 (value), s32 (offset_x), s32 (offset_y)
+	*/
 {
 	Color base_color = BASE_COLORS[value];
 	Color light_color = LIGHT_COLORS[value];
 
-	s32 edge = GRID_SIZE / 8;			// Helps draw black "dividers"
-	s32 x = col * GRID_SIZE + offset_x; // Horizontal position on board
-	s32 y = row * GRID_SIZE + offset_y; // Vertical position on board
+	// Helps draw black "dividers"
+	s32 edge = GRID_SIZE / 8;			
+
+	// Horizontal position on board
+	s32 x = col * GRID_SIZE + offset_x; 
+
+	// Vertical position on board
+	s32 y = row * GRID_SIZE + offset_y; 
 
 	fill_rect(renderer, x + edge, y, GRID_SIZE - edge, GRID_SIZE - edge, light_color);
 	fill_rect(renderer, x + edge, y + edge, GRID_SIZE - edge * 2, GRID_SIZE - edge * 2, base_color);
 }
 
 void GameBoardGraphics::fill_rect(SDL_Renderer *renderer, s32 x, s32 y, s32 width, s32 height, Color color)
-/*
-* For main gameboard and tetromino
-*/
+	/*
+		Desc: Fills up a tetrimino cells with color. 
+		
+		Params: SDL_Renderer (*renderer), s32 (x), s32 (y), s32 (width), s32 (height), Color (color)
+	*/
 {
 	SDL_Rect rect = {};
 	rect.x = x;
@@ -296,9 +358,11 @@ void GameBoardGraphics::fill_rect(SDL_Renderer *renderer, s32 x, s32 y, s32 widt
 }
 
 void GameBoardGraphics::draw_rect(SDL_Renderer *renderer, s32 x, s32 y, s32 width, s32 height, Color color)
-/*
-* For the tetromino "shadow", draw but don't fill
-*/
+	/*
+		Desc:  Draws outline(shape) of a tetromino.
+		
+		Params: SDL_Renderer (*renderer), s32 (x), s32 (y), s32 (width), s32 (height), Color (color)
+	*/
 {
 	SDL_Rect rect = {};
 	rect.x = x;

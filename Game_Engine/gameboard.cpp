@@ -19,6 +19,7 @@ const f32 TARGET_SECONDS_PER_FRAME = 1.f / 60.f;
 class GameBoard : public GameBoardGraphics
 {
 private:
+	// Gameboard variables 
 	u8 gameboard[WIDTH * HEIGHT];
 	u8 lines[HEIGHT];
 	s32 pending_line_count;
@@ -53,14 +54,43 @@ public:
 	int game_Over(GameBoard *, SDL_Renderer *, TTF_Font *);
 };
 
-f32 GameBoard::get_GameBoardTime() { return time; }
+f32 GameBoard::get_GameBoardTime() 
+{ 
+	/*
+		Desc: Gets the 
+		
+		Params: None. 
+	*/
+	return time; 
+}
 
-void GameBoard::set_GameBoardTime(f32 time) { this->time = time; }
+void GameBoard::set_GameBoardTime(f32 time)
+{ 
+	/*
+		Desc: 
+		
+		Params: f32 (time)
+	*/
+	this->time = time; 
+}
 
-void GameBoard::set_player(Player &player) { this->player = &player; }
+void GameBoard::set_player(Player &player) 
+{ 
+	/*
+		Desc: 
+		
+		Params: Player (&player)
+	*/
+	this->player = &player; 
+}
 
 void GameBoard::render_clearline_graphics(const GameBoard *gameboard, SDL_Renderer *renderer)
 {
+	/*
+		Desc: Renders the clearing of line graphics. 
+		
+		Params: const GameBoard (*gameboard), SDL_Renderer (*renderer)
+	*/
 	Color highlight_color = Color(0xFF, 0xFF, 0xFF, 0xFF);
 	if (gameboard->gamePhase == GAME_PHASE_LINE)
 	{
@@ -78,6 +108,11 @@ void GameBoard::render_clearline_graphics(const GameBoard *gameboard, SDL_Render
 
 void GameBoard::render_game(const GameBoard *gameboard, SDL_Renderer *renderer, TTF_Font *font)
 {
+	/*
+		Desc: Renders the gameboard by drawing the gameboard cells and tetrminos. 
+		
+		Params: const GameBoard (*gameboard), SDL_Renderer (*renderer), TTF_Font (*font)
+	*/
 	draw_on_board(renderer, gameboard->gameboard, WIDTH, HEIGHT, 0, 0);
 
 	if (gameboard->gamePhase == GAME_PHASE_PLAY)
@@ -86,11 +121,9 @@ void GameBoard::render_game(const GameBoard *gameboard, SDL_Renderer *renderer, 
 		TetrominoPieceState tetro_shadow = gameboard->tetrominoPiece;
 		while (check_tetromino_valid(&tetro_shadow, gameboard->gameboard, WIDTH, HEIGHT))
 		{
-			// tetro_shadow.offset_row++;
 			s32 temp = tetro_shadow.get_offset_row();
 			tetro_shadow.set_offset_row(temp + 1);
 		}
-		// --tetro_shadow.offset_row;
 		s32 temp = tetro_shadow.get_offset_row();
 		tetro_shadow.set_offset_row(temp - 1);
 
@@ -99,24 +132,26 @@ void GameBoard::render_game(const GameBoard *gameboard, SDL_Renderer *renderer, 
 
 	render_clearline_graphics(gameboard, renderer);
 
-	//temp for rendering score text on GUI
+	// For rendering score text on GUI
 	char buffer[4096];
 	s32 x = TEXT_HORZ_ALIGN;
 	s32 y = TEXT_VERT_ALIGN;
 	Color highlight_color = Color(0xFF, 0xFF, 0xFF, 0xFF);
 	draw_text(renderer, font, "Player Name:", x, y, TEXT_ALIGN_LEFT, highlight_color);
 	draw_text(renderer, font, player->playerInfo.playerName.c_str(), x, y + 50, TEXT_ALIGN_LEFT, highlight_color);
-
 	draw_text(renderer, font, "POINTS:", x, y + 100, TEXT_ALIGN_LEFT, highlight_color);
-
 	snprintf(buffer, sizeof(buffer), "%d", player->playerInfo.playerScore);
 	draw_text(renderer, font, buffer, x, (y + 150), TEXT_ALIGN_LEFT, highlight_color);
-
 	draw_text(renderer, font, "NEXT BLOCK:", x, (y + 210), TEXT_ALIGN_LEFT, highlight_color);
 }
 
 inline u8 GameBoard::check_if_row_filled(const u8 *values, s32 width, s32 row)
 {
+	/*
+		Desc: Checks if a row on the gameboard is filled with tetrominos. 
+		
+		Params: const u8 (*values), s32 (width), s32 (row)
+	*/
 	for (s32 col = 0; col < width; col++)
 	{
 		if (!get_matrix(values, width, row, col))
@@ -129,6 +164,11 @@ inline u8 GameBoard::check_if_row_filled(const u8 *values, s32 width, s32 row)
 
 inline u8 GameBoard::check_if_row_empty(const u8 *values, s32 width, s32 row)
 {
+	/*
+		Desc: Checks if a row on the  gameboard is empty. 
+		
+		Params: const u8 (*values), s32 (width), s32 (row)
+	*/
 	for (s32 col = 0; col < width; col++)
 	{
 		if (get_matrix(values, width, row, col))
@@ -141,6 +181,11 @@ inline u8 GameBoard::check_if_row_empty(const u8 *values, s32 width, s32 row)
 
 s32 GameBoard::find_lines(const u8 *values, s32 width, s32 height, u8 *lines_out)
 {
+	/*
+		Desc: Find rows that are filled with tetrominos. 
+		
+		Params: const u8 (*values), s32 (width), s32 (height), u8 (*lines_out)
+	*/
 	s32 count = 0;
 	for (s32 row = 0; row < height; row++)
 	{
@@ -153,6 +198,11 @@ s32 GameBoard::find_lines(const u8 *values, s32 width, s32 height, u8 *lines_out
 
 void GameBoard::clear_lines(u8 *values, s32 width, s32 height, const u8 *lines)
 {
+	/*
+		Desc: Clears a line on the gameboard if it is filled with tetrominos. 
+		
+		Params: u8 (*values), s32 (width), s32 (height), const u8 (*lines)
+	*/
 	// Play sound effect
 	Mix_Chunk *clearSound = Mix_LoadWAV(PATH_SE_CLEAR);
 	SoundEffect SEclearSound;
@@ -181,6 +231,11 @@ void GameBoard::clear_lines(u8 *values, s32 width, s32 height, const u8 *lines)
 
 int GameBoard::update_game(GameBoard *gameboard, const InputState *input, SDL_Renderer *renderer, TTF_Font *font)
 {
+	/*
+		Desc: Updates the game based on the state of the game. 
+		
+		Params: GameBoard (*gameboard), const InputState (*input), SDL_Renderer (*renderer), TTF_Font (*font)
+	*/
 	switch (gameboard->gamePhase)
 	{
 	case GAME_PHASE_PLAY:
@@ -200,8 +255,12 @@ int GameBoard::update_game(GameBoard *gameboard, const InputState *input, SDL_Re
 
 bool GameBoard::check_tetromino_valid(const TetrominoPieceState *tetromino_piece, const u8 *gameboard, s32 width, s32 height)
 {
+	/*
+		Desc: Checks whether a tetromino's position on the gameboard is valid. 
+		
+		Params: const TetrominoPieceState (*tetromino_piece), const u8 (*gameboard), s32 (width), s32 (height)
+	*/
 	const Tetromino *tetromino = current_tetromino;
-
 	assert(tetromino);
 
 	for (s32 row = 0; row < tetromino->side; row++)
@@ -211,8 +270,6 @@ bool GameBoard::check_tetromino_valid(const TetrominoPieceState *tetromino_piece
 			u8 value = get_tetromino(tetromino, row, col, tetromino_piece->get_rotation());
 			if (value > 0)
 			{
-				// s32 board_row = tetromino_piece->offset_row + row;
-				// s32 board_col = tetromino_piece->offset_col + col;
 				s32 board_row = tetromino_piece->get_offset_row() + row;
 				s32 board_col = tetromino_piece->get_offset_col() + col;
 				if (board_row < 0)
@@ -243,6 +300,12 @@ bool GameBoard::check_tetromino_valid(const TetrominoPieceState *tetromino_piece
 
 void GameBoard::spawn_tetromino(GameBoard *gameboard)
 {
+	/*
+		Desc: Spawns a tetrmino onto the gameboard as well as for the preview. 
+		
+		Params: GameBoard (*gameboard)
+	*/
+
 	// Grabs "next tetromino" and preps it for spawn
 	gameboard->tetrominoPiece.resetState();
 	gameboard->tetrominoPiece.set_tetromino_index(next_tetromino_index);
@@ -252,13 +315,19 @@ void GameBoard::spawn_tetromino(GameBoard *gameboard)
 	// Set "current tetromino" to the one prep'ed above
 	current_tetromino = tetrominoStruct.get_TetrominoList() + gameboard->tetrominoPiece.get_tetromino_index();
 
-	// Select new randon "next tetromino"
+	// Select new random "next tetromino"
 	next_tetromino_index = (u8)random_tetromino_index(0, tetrominoStruct.get_TetrominoShapeCount());
 	next_tetromino = tetrominoStruct.get_TetrominoList() + next_tetromino_index;
 }
 
 void GameBoard::merge_tetrimino_on_board(GameBoard *gameboard)
 {
+	/*
+		Desc: Merges the tetrimino onto the gameboard's cells.
+		
+		Params: GameBoard (*gameboard)
+	*/
+
 	// Play sound effect
 	Mix_Chunk *fallTetris = Mix_LoadWAV(PATH_SE_FALL);
 	SoundEffect SEfallTetris;
@@ -274,11 +343,9 @@ void GameBoard::merge_tetrimino_on_board(GameBoard *gameboard)
 			u8 value = get_tetromino(tetromino, row, col, gameboard->tetrominoPiece.get_rotation());
 			if (value)
 			{
-				// s32 board_row = gameboard->tetrominoPiece.offset_row + row;
-				// s32 board_col = gameboard->tetrominoPiece.offset_col + col;
 				s32 board_row = gameboard->tetrominoPiece.get_offset_row() + row;
 				s32 board_col = gameboard->tetrominoPiece.get_offset_col() + col;
-				set_matrix(gameboard->gameboard, WIDTH, board_row, board_col, value); // problem
+				set_matrix(gameboard->gameboard, WIDTH, board_row, board_col, value);
 			}
 		}
 	}
@@ -286,12 +353,15 @@ void GameBoard::merge_tetrimino_on_board(GameBoard *gameboard)
 
 inline bool GameBoard::drop_tetromino(GameBoard *gameboard)
 {
-	// ++gameboard->tetrominoPiece.offset_row;
+	/*
+		Desc: Drops a tetromino onto the gameboard. 
+		
+		Params: GameBoard (*gameboard)
+	*/
 	s32 temp = gameboard->tetrominoPiece.get_offset_row();
 	gameboard->tetrominoPiece.set_offset_row(temp + 1);
 	if (!check_tetromino_valid(&gameboard->tetrominoPiece, gameboard->gameboard, WIDTH, HEIGHT))
 	{
-		// --gameboard->tetrominoPiece.offset_row;
 		s32 temp = gameboard->tetrominoPiece.get_offset_row();
 		gameboard->tetrominoPiece.set_offset_row(temp - 1);
 		merge_tetrimino_on_board(gameboard);
@@ -304,6 +374,12 @@ inline bool GameBoard::drop_tetromino(GameBoard *gameboard)
 
 inline f32 GameBoard::get_time_to_next_tetromino_drop(s32 level)
 {
+	/*
+		Desc: Gets the time to drop the next tetromino onto the gameboard. 
+		
+		Params: s32 (level)
+	*/
+
 	if (level > 29)
 	{
 		level = 29;
@@ -313,12 +389,19 @@ inline f32 GameBoard::get_time_to_next_tetromino_drop(s32 level)
 
 void GameBoard::update_gameline(GameBoard *gameboard)
 {
+	/*
+		Desc: 
+		
+		Params: GameBoard (*gameboard)
+	*/
+
 	if (gameboard->time >= gameboard->highlighted_end_time)
 	{
 		clear_lines(gameboard->gameboard, WIDTH, HEIGHT, gameboard->lines);
 		gameboard->line_count += gameboard->pending_line_count;
 		int pendingLineCount = gameboard->pending_line_count;
-		//Temp adding of score
+
+		// Adding of score
 		player->playerInfo.playerScore = player->awardPoints(player, pendingLineCount);
 		gameboard->gamePhase = GAME_PHASE_PLAY;
 	}
@@ -326,7 +409,11 @@ void GameBoard::update_gameline(GameBoard *gameboard)
 
 void GameBoard::update_gameplay(GameBoard *gameboard, const InputState *input)
 {
-
+	/*
+		Desc: 
+		
+		Params: 
+	*/
 	TetrominoPieceState tetrominoPiece = gameboard->tetrominoPiece;
 	if (input->get_da() > 1)
 	{
@@ -387,10 +474,15 @@ void GameBoard::update_gameplay(GameBoard *gameboard, const InputState *input)
 
 int GameBoard::game_Over(GameBoard *gameboard, SDL_Renderer *renderer, TTF_Font *font)
 {
+	/*
+		Desc: 
+		
+		Params: 
+	*/	
 	int playerPoints = player->playerInfo.playerScore;
-	//int playerPoints = gameboard->points;
 	int indexToInsert, currentIndex = 0;
 	std::string str = "Continue or Exit?\nHighest Points: " + std::to_string(playerPoints) + "\nLeaderBoard: " + "\nName:Score";
+
 	/* try to open file to read */
 	try
 	{
@@ -426,11 +518,6 @@ int GameBoard::game_Over(GameBoard *gameboard, SDL_Renderer *renderer, TTF_Font 
 			tempPlayer.playerInfo.playerScore = fileScore;
 
 			fileInputPlayer.push_back(tempPlayer);
-			// if (playerPoints >= fileScore)
-			// {
-			// 	indexToInsert = currentIndex;
-			// }
-
 			currentIndex += 1;
 		}
 

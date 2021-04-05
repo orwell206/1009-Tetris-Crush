@@ -3,4 +3,6 @@ Chia,60
 Sadiq,60
 ShuFen,40
 YuQing,20
+ ,0
+Ryan,0
 JunHui,0
