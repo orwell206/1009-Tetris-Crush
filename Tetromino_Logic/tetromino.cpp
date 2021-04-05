@@ -12,8 +12,8 @@ class Tetromino {
 
 Tetromino::Tetromino(u8 *matrix, s32 side){
 	/*
-		Desc: Parameterised constructor. 
-		
+		Desc: Parameterised constructor.
+
 		Params: u8 (*matrix), s32 (side)
 	*/
 	this->matrix = matrix;
