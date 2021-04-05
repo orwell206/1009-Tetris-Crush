@@ -6,7 +6,8 @@
 #define PATH_SE_CLEAR "Assets/ClearSound.wav"
 #define PATH_SE_FALL "Assets/FallTetris.wav"
 
-class Audio {
+class Audio 
+{
 protected: 
     Mix_Music *audioMusic;
     Mix_Chunk *audioChunk;
@@ -21,7 +22,8 @@ public:
     bool getStatus();           // Encapsulation - get the audio status
 };
 
-void Audio::load(Mix_Music *audio) {
+void Audio::load(Mix_Music *audio) 
+{
     /*
         Desc: Load background music. 
         Params: Mix_Music (*audio)
@@ -30,7 +32,8 @@ void Audio::load(Mix_Music *audio) {
     Mix_VolumeMusic(volume);    // Set the volume with default value
 }
 
-void Audio::load(Mix_Chunk *audio) { 
+void Audio::load(Mix_Chunk *audio) 
+{ 
     /*
         Desc: Load sound effect. 
         Params: Mix_Music (*audio)
@@ -38,20 +41,24 @@ void Audio::load(Mix_Chunk *audio) {
     audioChunk = audio;
 }
 
-void Audio::play() {
+void Audio::play() 
+{
     /*
         Desc: Play the audio in a loop.
         Params: None.
     */
-    if(!Mix_PlayingMusic()){
+    if(!Mix_PlayingMusic())
+    {
         Mix_PlayMusic(audioMusic,-1);   // Put -1 so that it runs in a loop
     }
-    if(Mix_PlayingMusic()){
+    if(Mix_PlayingMusic())
+    {
         Mix_ResumeMusic();
     }
 }
 
-void Audio::stop() {
+void Audio::stop() 
+{
     /*
         Desc: Stop playing audio.
         Params: None.
@@ -59,7 +66,8 @@ void Audio::stop() {
     Mix_HaltMusic();
 }
 
-void Audio::setStatus(bool status){
+void Audio::setStatus(bool status)
+{
     /*
         Desc: Set the audio status (encapsulation)
         Params: bool (status)
@@ -67,7 +75,8 @@ void Audio::setStatus(bool status){
     runningStatus = status;
 }
 
-bool Audio::getStatus(){
+bool Audio::getStatus()
+{
     /*
         Desc: Get the audio status (encapsulation)
         Params: None
