@@ -20,44 +20,44 @@ class GameBoard : public GameBoardGraphics
 {
 private:
 	// Gameboard variables 
-	u8 gameboard[WIDTH * HEIGHT];
-	u8 lines[HEIGHT];
-	s32 pending_line_count;
-	Player *player;
-	Game_Phase gamePhase;
-	f32 nextDropTime;
-	f32 highlighted_end_time;
-	f32 time;
-	s32 level;
-	s32 cleared_lines;
-	s32 line_count;
-	s32 points;
+	u8 gameboard[WIDTH * HEIGHT]; 		// Gameboard object
+	u8 lines[HEIGHT];					// Lines of the gameboard
+	s32 pending_line_count;				// Pending line count 
+	Player *player;						// Player object
+	Game_Phase gamePhase;				// Game phase 
+	f32 nextDropTime;					// Time till the next tetromino drops 
+	f32 highlighted_end_time;			// Highlighted end time 
+	f32 time;							// Game time 
+	s32 level;							// Game level 
+	s32 cleared_lines;					// Number of lines successfully cleared 
+	s32 line_count;						// How many lines have been filled in the gameboard 
+	s32 points;							// Player score
 
 public:
-	f32 get_GameBoardTime();
-	void set_GameBoardTime(f32);
-	void set_player(Player &);
-	void render_clearline_graphics(const GameBoard *, SDL_Renderer *);
-	void render_game(const GameBoard *, SDL_Renderer *, TTF_Font *);
-	inline u8 check_if_row_filled(const u8 *, s32, s32);
-	inline u8 check_if_row_empty(const u8 *, s32, s32);
-	s32 find_lines(const u8 *, s32, s32, u8 *);
-	void clear_lines(u8 *, s32, s32, const u8 *);
-	int update_game(GameBoard *, const InputState *, SDL_Renderer *, TTF_Font *);
-	bool check_tetromino_valid(const TetrominoPieceState *, const u8 *, s32, s32);
-	void spawn_tetromino(GameBoard *);
-	void merge_tetrimino_on_board(GameBoard *);
-	inline bool drop_tetromino(GameBoard *);
-	inline f32 get_time_to_next_tetromino_drop(s32);
-	void update_gameline(GameBoard *);
-	void update_gameplay(GameBoard *, const InputState *);
-	int game_Over(GameBoard *, SDL_Renderer *, TTF_Font *);
+	f32 get_GameBoardTime();															// Gets the gameboard time.
+	void set_GameBoardTime(f32);														// Sets the gameboard time. 
+	void set_player(Player &);															// Sets the player object. 
+	void render_clearline_graphics(const GameBoard *, SDL_Renderer *);					// Renders the clearing of line graphics.
+	void render_game(const GameBoard *, SDL_Renderer *, TTF_Font *);					// Renders the gameboard by drawing the gameboard cells and tetrminos.
+	inline u8 check_if_row_filled(const u8 *, s32, s32);								// Checks if a row on the gameboard is filled with tetrominos. 
+	inline u8 check_if_row_empty(const u8 *, s32, s32);									// Checks if a row on the  gameboard is empty. 
+	s32 find_lines(const u8 *, s32, s32, u8 *);											// Find rows that are filled with tetrominos.
+	void clear_lines(u8 *, s32, s32, const u8 *);										// Clears a line on the gameboard if it is filled with tetrominos
+	int update_game(GameBoard *, const InputState *, SDL_Renderer *, TTF_Font *);		// Updates the game based on the state of the game.
+	bool check_tetromino_valid(const TetrominoPieceState *, const u8 *, s32, s32);		// Checks whether a tetromino's position on the gameboard is valid. 
+	void spawn_tetromino(GameBoard *);													// Spawns a tetrmino onto the gameboard as well as for the preview.
+	void merge_tetrimino_on_board(GameBoard *);											// Merges the tetrimino onto the gameboard's cells.
+	inline bool drop_tetromino(GameBoard *);											// Drops a tetromino onto the gameboard.
+	inline f32 get_time_to_next_tetromino_drop(s32);									// Gets the time to drop the next tetromino onto the gameboard. 
+	void update_gameline(GameBoard *);													// Updates the gamelines; clear the gameline if it is filled with tetrminos.
+	void update_gameplay(GameBoard *, const InputState *);								// Updates the moving of the tetriminos based on the player's controls.
+	int game_Over(GameBoard *, SDL_Renderer *, TTF_Font *);								// Displays the highscores of the game as well as prompt the user to restart or exit the game.
 };
 
 f32 GameBoard::get_GameBoardTime() 
 { 
 	/*
-		Desc: Gets the 
+		Desc: Gets the gameboard time. 
 		
 		Params: None. 
 	*/
@@ -67,7 +67,7 @@ f32 GameBoard::get_GameBoardTime()
 void GameBoard::set_GameBoardTime(f32 time)
 { 
 	/*
-		Desc: 
+		Desc: Sets the gameboard time. 
 		
 		Params: f32 (time)
 	*/
@@ -77,7 +77,7 @@ void GameBoard::set_GameBoardTime(f32 time)
 void GameBoard::set_player(Player &player) 
 { 
 	/*
-		Desc: 
+		Desc: Sets the player object.
 		
 		Params: Player (&player)
 	*/
@@ -115,6 +115,7 @@ void GameBoard::render_game(const GameBoard *gameboard, SDL_Renderer *renderer, 
 	*/
 	draw_on_board(renderer, gameboard->gameboard, WIDTH, HEIGHT, 0, 0);
 
+	// Check that the gamephase is game_phase_play
 	if (gameboard->gamePhase == GAME_PHASE_PLAY)
 	{
 		draw_tetromino(renderer, &gameboard->tetrominoPiece, 0, 0, false);
@@ -126,10 +127,10 @@ void GameBoard::render_game(const GameBoard *gameboard, SDL_Renderer *renderer, 
 		}
 		s32 temp = tetro_shadow.get_offset_row();
 		tetro_shadow.set_offset_row(temp - 1);
-
 		draw_tetromino(renderer, &tetro_shadow, 0, 0, true);
 	}
 
+	// Render the clearline graphics 
 	render_clearline_graphics(gameboard, renderer);
 
 	// For rendering score text on GUI
@@ -209,6 +210,7 @@ void GameBoard::clear_lines(u8 *values, s32 width, s32 height, const u8 *lines)
 	SEclearSound.load(clearSound);
 	SEclearSound.play();
 
+	// Clear the lines
 	s32 src_row = height - 1;
 	for (s32 dst_row = height - 1; dst_row >= 0; dst_row--)
 	{
@@ -263,6 +265,7 @@ bool GameBoard::check_tetromino_valid(const TetrominoPieceState *tetromino_piece
 	const Tetromino *tetromino = current_tetromino;
 	assert(tetromino);
 
+	// Perform the checks on whether the tetromino piece can be rotated or moved. 
 	for (s32 row = 0; row < tetromino->side; row++)
 	{
 		for (s32 col = 0; col < tetromino->side; col++)
@@ -336,6 +339,7 @@ void GameBoard::merge_tetrimino_on_board(GameBoard *gameboard)
 
 	const Tetromino *tetromino = current_tetromino;
 
+	// Merge the current tetrmino onto the gameboard's cells 
 	for (s32 row = 0; row < tetromino->side; row++)
 	{
 		for (s32 col = 0; col < tetromino->side; col++)
@@ -379,7 +383,6 @@ inline f32 GameBoard::get_time_to_next_tetromino_drop(s32 level)
 		
 		Params: s32 (level)
 	*/
-
 	if (level > 29)
 	{
 		level = 29;
@@ -390,13 +393,13 @@ inline f32 GameBoard::get_time_to_next_tetromino_drop(s32 level)
 void GameBoard::update_gameline(GameBoard *gameboard)
 {
 	/*
-		Desc: 
+		Desc: Updates the gamelines; clear the gameline if it is filled with tetrminos. 
 		
 		Params: GameBoard (*gameboard)
 	*/
-
 	if (gameboard->time >= gameboard->highlighted_end_time)
 	{
+		// Clears the gameline 
 		clear_lines(gameboard->gameboard, WIDTH, HEIGHT, gameboard->lines);
 		gameboard->line_count += gameboard->pending_line_count;
 		int pendingLineCount = gameboard->pending_line_count;
@@ -410,26 +413,28 @@ void GameBoard::update_gameline(GameBoard *gameboard)
 void GameBoard::update_gameplay(GameBoard *gameboard, const InputState *input)
 {
 	/*
-		Desc: 
+		Desc: Updates the moving of the tetriminos based on the player's controls. 
 		
-		Params: 
+		Params: GameBoard (*gameboard), const InputState (*input)
 	*/
 	TetrominoPieceState tetrominoPiece = gameboard->tetrominoPiece;
+	// Moves the tetromino left
 	if (input->get_da() > 1)
 	{
-		// --tetrominoPiece.offset_col;
 		s32 temp = tetrominoPiece.get_offset_col();
 		tetrominoPiece.set_offset_col(temp - 1);
 	}
+
+	// Moves the tetromino right
 	if (input->get_dd() > 1)
 	{
-		// ++tetrominoPiece.offset_col;
 		s32 temp = tetrominoPiece.get_offset_col();
 		tetrominoPiece.set_offset_col(temp + 1);
 	}
+
+	// Rotate the tetromino
 	if (input->get_dw() > 1)
 	{
-		// tetrominoPiece.rotation = (tetrominoPiece.rotation + 1) % 4;
 		s32 temp = tetrominoPiece.get_rotation();
 		tetrominoPiece.set_rotation((temp + 1) % 4);
 	}
@@ -439,15 +444,16 @@ void GameBoard::update_gameplay(GameBoard *gameboard, const InputState *input)
 		gameboard->tetrominoPiece = tetrominoPiece;
 	}
 
+	// Moves the tetromino down
 	if (input->get_ds() > 1)
 	{
 		drop_tetromino(gameboard);
 	}
 
+	// Drops the tetromino
 	if (input->get_dspace() > 1)
 	{
-		while (drop_tetromino(gameboard))
-			;
+		while (drop_tetromino(gameboard));
 	}
 
 	while (gameboard->time >= gameboard->nextDropTime)
@@ -455,8 +461,8 @@ void GameBoard::update_gameplay(GameBoard *gameboard, const InputState *input)
 		drop_tetromino(gameboard);
 	}
 
+	// Search for lines that are filled fully with tetrominos 
 	s32 line_count = find_lines(gameboard->gameboard, WIDTH, HEIGHT, gameboard->lines);
-	//temp for adding pending line count
 	gameboard->pending_line_count = find_lines(gameboard->gameboard, WIDTH, HEIGHT, gameboard->lines);
 	if (line_count > 0)
 	{
@@ -464,8 +470,8 @@ void GameBoard::update_gameplay(GameBoard *gameboard, const InputState *input)
 		gameboard->highlighted_end_time = gameboard->time + 0.5f;
 	}
 
+	// Checks whether the game is over 
 	s32 game_over_row = 0;
-
 	if (!check_if_row_empty(gameboard->gameboard, WIDTH, game_over_row))
 	{
 		gameboard->gamePhase = GAME_PHASE_GAMEOVER;
@@ -475,9 +481,9 @@ void GameBoard::update_gameplay(GameBoard *gameboard, const InputState *input)
 int GameBoard::game_Over(GameBoard *gameboard, SDL_Renderer *renderer, TTF_Font *font)
 {
 	/*
-		Desc: 
+		Desc: Displays the highscores of the game as well as prompt the user to restart or exit the game. 
 		
-		Params: 
+		Params: GameBoard (*gameboard), SDL_Renderer (*renderer), TTF_Font (*font)
 	*/	
 	int playerPoints = player->playerInfo.playerScore;
 	int indexToInsert, currentIndex = 0;

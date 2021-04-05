@@ -64,26 +64,25 @@ private:
 		Color(0xE5, 0x95, 0x44, 0xFF)}; // Square Shape
 
 public:
-	inline u8 get_matrix(const u8 *, s32, s32, s32);
-	inline void set_matrix(u8 *, s32, s32, s32, u8);
-	inline u8 get_tetromino(const Tetromino *, s32, s32, s32);
-	int random_tetromino_index(s32, s32); 											  
-	void draw_text(SDL_Renderer *, TTF_Font *, const char *, s32, s32, Text_Align, Color);
-	void draw_on_board(SDL_Renderer *, const u8 *, s32, s32, s32, s32);				  
-	void draw_tetromino(SDL_Renderer *, const TetrominoPieceState *, s32, s32, bool); 
-	void draw_cell_board(SDL_Renderer *, s32, s32, u8, s32, s32, bool);				  
-	void draw_cell_preview(SDL_Renderer *, s32, s32, u8, s32, s32);					 
-	void draw_rect(SDL_Renderer *, s32, s32, s32, s32, Color);						  
-	void fill_rect(SDL_Renderer *, s32, s32, s32, s32, Color);						
-	bool loadFromRenderedText(SDL_Renderer *, TTF_Font *, const char *, SDL_Color);
-	void renderText(SDL_Renderer *, s32, s32);
+	bool loadFromRenderedText(SDL_Renderer *, TTF_Font *, const char *, SDL_Color);				// Loads text to be renderde onto the gameboard. 
+	void renderText(SDL_Renderer *, s32, s32);													// Renders text onto the gameboard. 
+	inline u8 get_matrix(const u8 *, s32, s32, s32);											// Gets the matrix of a tetromino
+	inline void set_matrix(u8 *, s32, s32, s32, u8);											// Sets the matrix of a tetromino
+	inline u8 get_tetromino(const Tetromino *, s32, s32, s32);									// Gets a tetromino object as well as its coordinates. 
+	int random_tetromino_index(s32, s32); 											  			// Generates a random index which is inturn used as an index to get a random tetromino.
+	void draw_text(SDL_Renderer *, TTF_Font *, const char *, s32, s32, Text_Align, Color);		// Draws text onto the gameboard. 
+	void draw_on_board(SDL_Renderer *, const u8 *, s32, s32, s32, s32);				  			// Draws onto the gameboard. 
+	void draw_tetromino(SDL_Renderer *, const TetrominoPieceState *, s32, s32, bool); 			// Draws the tetromino onto the gameboard.
+	void draw_cell_board(SDL_Renderer *, s32, s32, u8, s32, s32, bool);				  			// Draws the individual cells of the gameboard.
+	void draw_cell_preview(SDL_Renderer *, s32, s32, u8, s32, s32);								// Draws the next tetrmino preview
+	void fill_rect(SDL_Renderer *, s32, s32, s32, s32, Color);					 				// Fills up a tetrimino cells with color
+	void draw_rect(SDL_Renderer *, s32, s32, s32, s32, Color);						  			// Draws outline(shape) of a tetromino.
 };
-
 
 bool GameBoardGraphics::loadFromRenderedText(SDL_Renderer *gRenderer, TTF_Font *gFont, const char *textureText, SDL_Color textColor)
 {
 	/*
-		Desc: <FILL THIS UP>
+		Desc: Loads text to be renderde onto the gameboard. 
 		
 		Params: SDL_Renderer (*gRenderer), TTF_Font (*gFont), const char (*textureText), SDL_Color (textColor)
 	*/
@@ -118,11 +117,10 @@ bool GameBoardGraphics::loadFromRenderedText(SDL_Renderer *gRenderer, TTF_Font *
 	return true;
 }
 
-
 void GameBoardGraphics::renderText(SDL_Renderer *gRenderer, s32 x, s32 y)
 {
 	/*
-		Desc: Draws text onto the gameboard. 
+		Desc: Renders text onto the gameboard. 
 		
 		Params: SDL_Renderer (*gRenderer), s32 (x), s32 (y)
 	*/
@@ -145,7 +143,6 @@ void GameBoardGraphics::renderText(SDL_Renderer *gRenderer, s32 x, s32 y)
 	//Render to screen
 	SDL_RenderCopyEx(gRenderer, font_texture, clip, &renderQuad, angle, center, flip);
 }
-
 
 inline u8 GameBoardGraphics::get_matrix(const u8 *values, s32 width, s32 row, s32 col)
 {
@@ -205,7 +202,7 @@ int GameBoardGraphics::random_tetromino_index(s32 min, s32 max)
 void GameBoardGraphics::draw_text(SDL_Renderer *renderer, TTF_Font *font, const char *text, s32 x, s32 y, Text_Align alignment, Color color)
 {
 	/*
-		Desc: <FILL THIS UP>
+		Desc: Draws text onto the gameboard. 
 		
 		Params: SDL_Renderer (*renderer), TTF_Font (*font), const char (*text), s32 (x), s32 (y), Text_Align (alignment), Color (color)
 	*/
@@ -257,12 +254,12 @@ void GameBoardGraphics::draw_on_board(SDL_Renderer *renderer, const u8 *gameboar
 }
 
 void GameBoardGraphics::draw_tetromino(SDL_Renderer *renderer, const TetrominoPieceState *tetrominoPiece, s32 offset_x, s32 offset_y, bool outline = false)
+{
 	/*
 		Desc: Draws the tetromino onto the gameboard.
 		
 		Params: SDL_Renderer (*renderer), const TetrominoPieceState (*tetrominoPiece), s32 (offset_x), s32 (offset_y), bool (outline = false)
 	*/
-{
 	const Tetromino *current_tetro = current_tetromino;
 	const Tetromino *next_tetro = next_tetromino;
 
@@ -296,12 +293,13 @@ void GameBoardGraphics::draw_tetromino(SDL_Renderer *renderer, const TetrominoPi
 }
 
 void GameBoardGraphics::draw_cell_board(SDL_Renderer *renderer, s32 row, s32 col, u8 value, s32 offset_x, s32 offset_y, bool outline = false)
+{
 	/*
 		Desc: Draws the individual cells of the gameboard.
 		
 		Params: SDL_Renderer (*renderer), s32 (row), s32 (col), u8 (value), s32 (offset_x), s32 (offset_y), bool (outline = false)
 	*/
-{
+
 	Color base_color = BASE_COLORS[value];
 	Color light_color = LIGHT_COLORS[value];
 
@@ -319,12 +317,12 @@ void GameBoardGraphics::draw_cell_board(SDL_Renderer *renderer, s32 row, s32 col
 }
 
 void GameBoardGraphics::draw_cell_preview(SDL_Renderer *renderer, s32 row, s32 col, u8 value, s32 offset_x, s32 offset_y)
+{
 	/*
 		Desc: Draws the next tetrmino preview. 
 		
 		Params: SDL_Renderer (*renderer), s32 (row), s32 (col), u8 (value), s32 (offset_x), s32 (offset_y)
 	*/
-{
 	Color base_color = BASE_COLORS[value];
 	Color light_color = LIGHT_COLORS[value];
 
@@ -342,12 +340,13 @@ void GameBoardGraphics::draw_cell_preview(SDL_Renderer *renderer, s32 row, s32 c
 }
 
 void GameBoardGraphics::fill_rect(SDL_Renderer *renderer, s32 x, s32 y, s32 width, s32 height, Color color)
+{
 	/*
 		Desc: Fills up a tetrimino cells with color. 
 		
 		Params: SDL_Renderer (*renderer), s32 (x), s32 (y), s32 (width), s32 (height), Color (color)
 	*/
-{
+
 	SDL_Rect rect = {};
 	rect.x = x;
 	rect.y = y;
@@ -358,12 +357,12 @@ void GameBoardGraphics::fill_rect(SDL_Renderer *renderer, s32 x, s32 y, s32 widt
 }
 
 void GameBoardGraphics::draw_rect(SDL_Renderer *renderer, s32 x, s32 y, s32 width, s32 height, Color color)
+{
 	/*
 		Desc:  Draws outline(shape) of a tetromino.
 		
 		Params: SDL_Renderer (*renderer), s32 (x), s32 (y), s32 (width), s32 (height), Color (color)
 	*/
-{
 	SDL_Rect rect = {};
 	rect.x = x;
 	rect.y = y;
