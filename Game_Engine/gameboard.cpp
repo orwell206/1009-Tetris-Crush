@@ -20,38 +20,38 @@ class GameBoard : public GameBoardGraphics
 {
 private:
 	// Gameboard variables
-	u8 gameboard[WIDTH * HEIGHT]; 		// Gameboard object
-	u8 lines[HEIGHT];					// Lines of the gameboard
-	s32 pending_line_count;				// Pending line count
-	Player *player;						// Player object
-	Game_Phase gamePhase;				// Game phase
-	f32 nextDropTime;					// Time till the next tetromino drops
-	f32 highlighted_end_time;			// Highlighted end time
-	f32 time;							// Game time
-	s32 level;							// Game level
-	s32 cleared_lines;					// Number of lines successfully cleared
-	s32 line_count;						// How many lines have been filled in the gameboard
-	s32 points;							// Player score
+	u8 gameboard[WIDTH * HEIGHT]; // Gameboard object
+	u8 lines[HEIGHT];			  // Lines of the gameboard
+	s32 pending_line_count;		  // Pending line count
+	Player *player;				  // Player object
+	Game_Phase gamePhase;		  // Game phase
+	f32 nextDropTime;			  // Time till the next tetromino drops
+	f32 highlighted_end_time;	  // Highlighted end time
+	f32 time;					  // Game time
+	s32 level;					  // Game level
+	s32 cleared_lines;			  // Number of lines successfully cleared
+	s32 line_count;				  // How many lines have been filled in the gameboard
+	s32 points;					  // Player score
 
 public:
-	f32 get_GameBoardTime();															// Gets the gameboard time.
-	void set_GameBoardTime(f32);														// Sets the gameboard time.
-	void set_player(Player &);															// Sets the player object.
-	void render_clearline_graphics(const GameBoard *, SDL_Renderer *);					// Renders the clearing of line graphics.
-	void render_game(const GameBoard *, SDL_Renderer *, TTF_Font *);					// Renders the gameboard by drawing the gameboard cells and tetrminos.
-	inline u8 check_if_row_filled(const u8 *, s32, s32);								// Checks if a row on the gameboard is filled with tetrominos.
-	inline u8 check_if_row_empty(const u8 *, s32, s32);									// Checks if a row on the  gameboard is empty.
-	s32 find_lines(const u8 *, s32, s32, u8 *);											// Find rows that are filled with tetrominos.
-	void clear_lines(u8 *, s32, s32, const u8 *);										// Clears a line on the gameboard if it is filled with tetrominos
-	int update_game(GameBoard *, const InputState *, SDL_Renderer *, TTF_Font *);		// Updates the game based on the state of the game.
-	bool check_tetromino_valid(const TetrominoPieceState *, const u8 *, s32, s32);		// Checks whether a tetromino's position on the gameboard is valid.
-	void spawn_tetromino(GameBoard *);													// Spawns a tetrmino onto the gameboard as well as for the preview.
-	void merge_tetrimino_on_board(GameBoard *);											// Merges the tetrimino onto the gameboard's cells.
-	inline bool drop_tetromino(GameBoard *);											// Drops a tetromino onto the gameboard.
-	inline f32 get_time_to_next_tetromino_drop(s32);									// Gets the time to drop the next tetromino onto the gameboard.
-	void update_gameline(GameBoard *);													// Updates the gamelines; clear the gameline if it is filled with tetrminos.
-	void update_gameplay(GameBoard *, const InputState *);								// Updates the moving of the tetriminos based on the player's controls.
-	int game_Over(GameBoard *, SDL_Renderer *, TTF_Font *);								// Displays the highscores of the game as well as prompt the user to restart or exit the game.
+	f32 get_GameBoardTime();													   // Gets the gameboard time.
+	void set_GameBoardTime(f32);												   // Sets the gameboard time.
+	void set_player(Player &);													   // Sets the player object.
+	void render_clearline_graphics(const GameBoard *, SDL_Renderer *);			   // Renders the clearing of line graphics.
+	void render_game(const GameBoard *, SDL_Renderer *, TTF_Font *);			   // Renders the gameboard by drawing the gameboard cells and tetrminos.
+	inline u8 check_if_row_filled(const u8 *, s32, s32);						   // Checks if a row on the gameboard is filled with tetrominos.
+	inline u8 check_if_row_empty(const u8 *, s32, s32);							   // Checks if a row on the  gameboard is empty.
+	s32 find_lines(const u8 *, s32, s32, u8 *);									   // Find rows that are filled with tetrominos.
+	void clear_lines(u8 *, s32, s32, const u8 *);								   // Clears a line on the gameboard if it is filled with tetrominos
+	int update_game(GameBoard *, const InputState *, SDL_Renderer *, TTF_Font *);  // Updates the game based on the state of the game.
+	bool check_tetromino_valid(const TetrominoPieceState *, const u8 *, s32, s32); // Checks whether a tetromino's position on the gameboard is valid.
+	void spawn_tetromino(GameBoard *);											   // Spawns a tetrmino onto the gameboard as well as for the preview.
+	void merge_tetrimino_on_board(GameBoard *);									   // Merges the tetrimino onto the gameboard's cells.
+	inline bool drop_tetromino(GameBoard *);									   // Drops a tetromino onto the gameboard.
+	inline f32 get_time_to_next_tetromino_drop(s32);							   // Gets the time to drop the next tetromino onto the gameboard.
+	void update_gameline(GameBoard *);											   // Updates the gamelines; clear the gameline if it is filled with tetrminos.
+	void update_gameplay(GameBoard *, const InputState *);						   // Updates the moving of the tetriminos based on the player's controls.
+	int game_Over(GameBoard *, SDL_Renderer *, TTF_Font *);						   // Displays the highscores of the game as well as prompt the user to restart or exit the game.
 };
 
 f32 GameBoard::get_GameBoardTime()
@@ -453,7 +453,8 @@ void GameBoard::update_gameplay(GameBoard *gameboard, const InputState *input)
 	// Drops the tetromino
 	if (input->get_dspace() > 1)
 	{
-		while (drop_tetromino(gameboard));
+		while (drop_tetromino(gameboard))
+			;
 	}
 
 	while (gameboard->time >= gameboard->nextDropTime)
@@ -485,102 +486,126 @@ int GameBoard::game_Over(GameBoard *gameboard, SDL_Renderer *renderer, TTF_Font 
 
 		Params: GameBoard (*gameboard), SDL_Renderer (*renderer), TTF_Font (*font)
 	*/
+	//Retrieve last known player score
 	int playerPoints = player->playerInfo.playerScore;
+	//Init index for usage
 	int indexToInsert, currentIndex = 0;
+	//Message to be displayed out on the popout
 	std::string str = "Continue or Exit?\nHighest Points: " + std::to_string(playerPoints) + "\nLeaderBoard: " + "\nName:Score";
 
 	/* try to open file to read */
 	try
 	{
+		//Open file
 		std::ifstream ifile;
 		ifile.open("scoreboard.txt");
+		//Check if file exist.
 		if (!ifile)
 		{
-			//Need to be worked on
+			//Doesnt contain file
 			std::cout << "file doesn't exist";
+			//Create new file
 			FILE *file;
 			file = fopen("scoreboard.txt", "r+b");
 			ifile.open("scoreboard.txt");
 			fclose(file);
 		}
+		//Declare variables for usage
 		std::string line;
 		std::list<Player> fileInputPlayer;
 		Player insertPlayer;
-
+		//Loop to retrieve all lines from the file.
 		while (getline(ifile, line, ','))
 		{
+			//Create tempPlayer object
 			Player tempPlayer;
+			//Insert player name from file
 			tempPlayer.playerInfo.playerName = line;
-
+			//Get next line from file
 			getline(ifile, line);
-
+			//Assign score to variable from file
 			int fileScore = stoi(line);
+
+			//if currentIndex more than 10 , stop adding player history to message
 			if (currentIndex <= 10)
 			{
+				//if currentIndex less than or eqaul to 10, continue adding player history to message
 				std::string playerHistory = tempPlayer.playerInfo.playerName + ":" + std::to_string(fileScore);
 				str += "\n" + playerHistory;
 			}
-
+			//if assign score to playerscore object
 			tempPlayer.playerInfo.playerScore = fileScore;
-
+			//Push the temp Player object into the List of players
 			fileInputPlayer.push_back(tempPlayer);
+			//Increment Index
 			currentIndex += 1;
 		}
-
+		//Close file reading
 		ifile.close();
+		//Init index for usage
 		int index = 0;
+		// set list begin and end , for loop
 		for (auto i = fileInputPlayer.begin(); i != fileInputPlayer.end(); i++)
 		{
-
+			// check if player current score is more than or equal to playerhistory playerscore
 			if (playerPoints >= i->playerInfo.playerScore)
 			{
+				//assign index for insertion
 				indexToInsert = index;
 				break;
 			}
+			//increment index
 			index++;
 		}
-		//To be worked on
+		//Assign player name and player score to insertPlayer object
 		insertPlayer.playerInfo.playerName = player->playerInfo.playerName;
 		insertPlayer.playerInfo.playerScore = playerPoints;
+		//if no history inside the file. will add current player name and score
 		if (currentIndex == 0)
 		{
 			str += "\n" + player->playerInfo.playerName + ":" + std::to_string(playerPoints);
 		}
-		std::cout << indexToInsert;
+		//set begin of fileInputPlayer list to tempPlayer
 		auto tempPlayer = fileInputPlayer.begin();
+		//advance tempPlayer to the index of insertion
 		advance(tempPlayer, indexToInsert);
+		//insert player into the list
 		fileInputPlayer.insert(tempPlayer, insertPlayer);
-
+		//Append scoreboard.txt
 		std::ofstream ofs("scoreboard.txt", std::ofstream::trunc);
+		//for loop
 		for (auto it = fileInputPlayer.begin(); it != fileInputPlayer.end(); it++)
 		{
+			//Save the player name and player score into the .txt file
 			ofs << it->playerInfo.playerName << "," << it->playerInfo.playerScore << "\n";
 		}
+		//close writer
 		ofs.close();
 	}
+	//error catching
 	catch (exception ex)
 	{
 		cout << "Something went wrong while opening the file. ";
 	}
-
+	//convert string msg to char
 	const char *message = str.c_str();
 	const SDL_MessageBoxButtonData buttons[] = {
 		{/* .flags, .buttonid, .text */
-			0, 0, "Exit"},
+		 0, 0, "Exit"},
 		{SDL_MESSAGEBOX_BUTTON_RETURNKEY_DEFAULT, 1, "Restart"},
 	};
 	const SDL_MessageBoxColorScheme colorScheme = {
 		{/* .colors (.r, .g, .b) */
-		/* [SDL_MESSAGEBOX_COLOR_BACKGROUND] */
-		{255, 0, 0},
-		/* [SDL_MESSAGEBOX_COLOR_TEXT] */
-		{0, 255, 0},
-		/* [SDL_MESSAGEBOX_COLOR_BUTTON_BORDER] */
-		{255, 255, 0},
-		/* [SDL_MESSAGEBOX_COLOR_BUTTON_BACKGROUND] */
-		{0, 0, 255},
-		/* [SDL_MESSAGEBOX_COLOR_BUTTON_SELECTED] */
-		{255, 0, 255}}};
+		 /* [SDL_MESSAGEBOX_COLOR_BACKGROUND] */
+		 {255, 0, 0},
+		 /* [SDL_MESSAGEBOX_COLOR_TEXT] */
+		 {0, 255, 0},
+		 /* [SDL_MESSAGEBOX_COLOR_BUTTON_BORDER] */
+		 {255, 255, 0},
+		 /* [SDL_MESSAGEBOX_COLOR_BUTTON_BACKGROUND] */
+		 {0, 0, 255},
+		 /* [SDL_MESSAGEBOX_COLOR_BUTTON_SELECTED] */
+		 {255, 0, 255}}};
 	const SDL_MessageBoxData messageboxdata = {
 		SDL_MESSAGEBOX_INFORMATION,	 /* .flags */
 		NULL,						 /* .window */
@@ -591,22 +616,29 @@ int GameBoard::game_Over(GameBoard *gameboard, SDL_Renderer *renderer, TTF_Font 
 		&colorScheme				 /* .colorScheme */
 	};
 	int buttonid;
+	//
 	if (SDL_ShowMessageBox(&messageboxdata, &buttonid) < 0)
 	{
 		SDL_Log("error displaying message box");
 		return 1;
 	}
+	//If no button is selected
 	if (buttonid == -1)
 	{
 		SDL_Log("no selection");
 	}
+	//if selected is no
 	else if (buttonid == 0)
 	{
+		//stop game and exit game
 		return 0;
 	}
+	//if selected is yes
 	else if (buttonid == 1)
 	{
+		//restart game and navigate to main menu
 		return 1;
 	}
+	//stop game and exit game
 	return 0;
 }

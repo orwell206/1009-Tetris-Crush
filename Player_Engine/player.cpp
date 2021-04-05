@@ -1,6 +1,5 @@
 #pragma once
 #include <string>
-#include <iostream>
 using namespace std;
 
 class Player
@@ -23,14 +22,29 @@ Player::Player()
 }
 int Player::awardPoints(Player *player, int lines)
 {
+	/*
+		Desc: Award player points when lines are cleared on the game.
+
+		Params: Player (*player), int (lines)
+	*/
+	//Temp Player
 	Player tempPlayer;
+	//Calculate score for player when cleared line
 	player->playerInfo.playerScore = player->playerInfo.playerScore + (20 * lines);
-	//tempPlayer = ;
+	//Using the overloaded operator, sum both player class and return playscore.
 	return (tempPlayer + player).playerInfo.playerScore;
 }
 Player Player::operator+(Player *userPlayer)
 {
+	/*
+		Desc: Overloading operator + for adding player score.
+
+		Params: Player (*userPlayer)
+	*/
+	//Temp Player
 	Player temp;
+	//Sum player score
 	temp.playerInfo.playerScore = this->playerInfo.playerScore + userPlayer->playerInfo.playerScore;
+	//Return Temp
 	return temp;
 }
