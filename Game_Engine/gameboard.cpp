@@ -583,9 +583,9 @@ int GameBoard::game_Over(GameBoard *gameboard, SDL_Renderer *renderer, TTF_Font 
 		ofs.close();
 	}
 	//error catching
-	catch (exception ex)
+	catch (...)
 	{
-		cout << "Something went wrong while opening the file. ";
+		cout << "Something went wrong while opening the file.";
 	}
 	//convert string msg to char
 	const char *message = str.c_str();
