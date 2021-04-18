@@ -18,7 +18,7 @@ Discuss and come up with a catchy name for your application,
 - [x] GUI 
 
 ##### Should have:
-- [ ] Main menu
+- [X] Main menu
 - [ ] Game can be paused
 
 ##### Could have:
