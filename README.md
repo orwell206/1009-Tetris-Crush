@@ -1,8 +1,7 @@
 # 1009-Tetris-Crush-C-
 
 ### Project Description 
-Decide and state which game your team will be working on,
-- The objection of the project is to create a `Tetris` game.
+A Tetris game that is coded using C++ and is coded with the use of Object Oriented Projects (OOP). 
 
 ### Tool Name
 Discuss and come up with a catchy name for your application,
@@ -23,10 +22,17 @@ Discuss and come up with a catchy name for your application,
 - [ ] Game can be paused
 
 ##### Could have:
-- [ ] Soundtrack
+- [X] Soundtrack
 - [ ] Multiple levels
-- [ ] Smooth animation/Effect
+- [X] Smooth animation/Effect
 
 ##### Would have:
 - [ ] Settings menu
-- [ ] Persistent scoreboard
+- [X] Persistent scoreboard
+
+### Instructions 
+1. Run the following command to compile the program into “main.exe”
+g++ -std=c++17 main.cpp -I "SDL2\include" -L "SDL2\lib" -Wall -lmingw32 -lSDL2main -lSDL2 -lSDL2_ttf -lSDL2_mixer -lstdc++ -o main
+
+2. Run the following command to start the program
+main.exe
